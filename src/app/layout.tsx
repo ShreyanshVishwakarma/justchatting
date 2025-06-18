@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import ConvexClientComponent from "@/providers/convexClientComponent";
 import { ClerkProvider } from "@clerk/nextjs";
 import AuthHeader from "@/components/AuthHeader";
+import ErrorBoundary from "@/components/ErrorBoundary";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -33,8 +34,10 @@ export default function RootLayout({
           <body
             className={`${geistSans.variable} ${geistMono.variable} antialiased`}
           >
-            <AuthHeader />
-            <main className="min-h-screen bg-gray-50">{children}</main>
+            <ErrorBoundary>
+              <AuthHeader />
+              <main className="min-h-screen bg-gray-50">{children}</main>
+            </ErrorBoundary>
           </body>
         </html>
       </ConvexClientComponent>

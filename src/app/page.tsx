@@ -1,6 +1,9 @@
 "use client"
 import { Button } from "@/components/ui/button";
-import {AuthLoading, Unauthenticated, Authenticated } from "convex/react";
+import { AuthLoading, Unauthenticated, Authenticated } from "convex/react";
+import Loading from './loading'
+import { useQuery } from "convex/react";
+import { api } from "../../convex/_generated/api";
 
 export default function Home() {
   return (
@@ -9,17 +12,17 @@ export default function Home() {
         <h1 className="text-4xl font-bold text-gray-900 mb-8">
           Welcome to Just Chatting
         </h1>
-        
+
         <AuthLoading>
           <div className="flex justify-center items-center h-64">
-            <p className="text-lg text-gray-600">Loading...</p>
+            <Loading />
           </div>
         </AuthLoading>
 
         <Unauthenticated>
           <div className="max-w-2xl mx-auto">
             <p className="text-lg text-gray-600 mb-8">
-              Join our community and start chatting with people from around the world. 
+              Join our community and start chatting with people from around the world.
               Sign in or create an account to get started.
             </p>
             <div className="bg-white rounded-lg shadow-md p-8">
@@ -49,9 +52,28 @@ export default function Home() {
                 Start Chatting
               </Button>
             </div>
+            <UserIdentity />
+
           </div>
         </Authenticated>
       </div>
     </div>
   );
+}
+
+
+function UserIdentity() {
+  const identity = useQuery(api.users.GetMyIdentity);
+
+  return <div>
+    <h1 className="text-xl font-semibold "> Here is your JWT data </h1>
+    {identity === undefined && <p>Loading identity information...</p>}
+    {identity === null && <p>could't load the identity, maybe you are not properly authenticated</p>}
+
+    <div className="overflow-hidden bg-gray-200">
+      <pre>
+        {JSON.stringify(identity, null, 2)}
+      </pre>
+    </div>
+  </div>
 }

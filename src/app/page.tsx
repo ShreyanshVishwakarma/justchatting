@@ -1,5 +1,6 @@
-import { SignedIn, SignedOut } from "@clerk/nextjs";
+"use client"
 import { Button } from "@/components/ui/button";
+import {AuthLoading, Unauthenticated, Authenticated } from "convex/react";
 
 export default function Home() {
   return (
@@ -9,7 +10,13 @@ export default function Home() {
           Welcome to Just Chatting
         </h1>
         
-        <SignedOut>
+        <AuthLoading>
+          <div className="flex justify-center items-center h-64">
+            <p className="text-lg text-gray-600">Loading...</p>
+          </div>
+        </AuthLoading>
+
+        <Unauthenticated>
           <div className="max-w-2xl mx-auto">
             <p className="text-lg text-gray-600 mb-8">
               Join our community and start chatting with people from around the world. 
@@ -24,9 +31,9 @@ export default function Home() {
               </p>
             </div>
           </div>
-        </SignedOut>
+        </Unauthenticated>
 
-        <SignedIn>
+        <Authenticated>
           <div className="max-w-2xl mx-auto">
             <p className="text-lg text-gray-600 mb-8">
               Welcome back! You're successfully signed in and ready to start chatting.
@@ -43,7 +50,7 @@ export default function Home() {
               </Button>
             </div>
           </div>
-        </SignedIn>
+        </Authenticated>
       </div>
     </div>
   );

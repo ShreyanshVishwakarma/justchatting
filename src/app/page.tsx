@@ -6,6 +6,9 @@ import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 
 export default function Home() {
+
+  const addedData = useQuery(api.addnumbers.addnumber, { a: 1, b: 2 });
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <div className="text-center">
@@ -51,10 +54,12 @@ export default function Home() {
               <Button variant="default" className="bg-blue-600 hover:bg-blue-700 text-white">
                 Start Chatting
               </Button>
+              <div>
+                {addedData}
+              </div>
             </div>
-            <UserIdentity />
-
           </div>
+          <UserIdentity />
         </Authenticated>
       </div>
     </div>
@@ -70,10 +75,8 @@ function UserIdentity() {
     {identity === undefined && <p>Loading identity information...</p>}
     {identity === null && <p>could't load the identity, maybe you are not properly authenticated</p>}
 
-    <div className="overflow-hidden bg-gray-200">
-      <pre>
-        {JSON.stringify(identity, null, 2)}
-      </pre>
+    <div className="flex justify-items-start bg-gray-200">
+      {JSON.stringify(identity, null, 2)}
     </div>
   </div>
 }

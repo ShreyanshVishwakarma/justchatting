@@ -7,8 +7,6 @@ import { api } from "../../convex/_generated/api";
 
 export default function Home() {
 
-  const addedData = useQuery(api.addnumbers.addnumber, { a: 1, b: 2 });
-
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <div className="text-center">
@@ -55,7 +53,6 @@ export default function Home() {
                 Start Chatting
               </Button>
               <div>
-                {addedData}
               </div>
             </div>
           </div>

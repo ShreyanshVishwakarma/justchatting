@@ -11,7 +11,7 @@ const ValidatePayload = async (req: Request): Promise<WebhookEvent | undefined> 
   const svixHeaders = {
     "svix-id": req.headers.get("svix-id")!,
     "svix-timestamp": req.headers.get("svix-timestamp")!,
-    "svix-signature": req.headers.get("svix-signatrue")!,
+    "svix-signature": req.headers.get("svix-signature")!,
   }
 
   const webhook = new Webhook(process.env.CLERK_WEBHOOK_SECRET || "");
@@ -60,7 +60,7 @@ const handleWebhookRequest = httpAction(async (ctx, req) => {
 });
 
 http.route({
-  path: "/clerk-users-webhook",
+  path: "/clerk-user-webhook",
   method: "POST",
   handler: handleWebhookRequest
 })

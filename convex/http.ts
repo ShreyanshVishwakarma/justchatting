@@ -40,7 +40,6 @@ const handleWebhookRequest = httpAction(async (ctx, req) => {
       if (user) {
         console.log(`Updating user ${event.data.id} with : ${event.data}`);
       }
-      break;
     }
     case "user.updated": {
       await ctx.runMutation(internal.user.create, {

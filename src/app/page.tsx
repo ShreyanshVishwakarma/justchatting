@@ -1,10 +1,24 @@
 "use client"
 import { Button } from "@/components/ui/button";
 import { AuthLoading, Unauthenticated, Authenticated } from "convex/react";
-import Loading from './loading'
+import Loading from './loading';
 import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
+
+const RedirectToConversation = () => {
+  const router = useRouter();
+  useEffect(() => {
+    router.push("/conversations");
+  }, [router]);
+  return (
+    <div className="flex justify-center items-center h-64">
+      <Loading />
+    </div>
+  );
+};
 export default function Home() {
 
   return (
@@ -38,42 +52,9 @@ export default function Home() {
         </Unauthenticated>
 
         <Authenticated>
-          <div className="max-w-2xl mx-auto">
-            <p className="text-lg text-gray-600 mb-8">
-              Welcome back! You're successfully signed in and ready to start chatting.
-            </p>
-            <div className="bg-white rounded-lg shadow-md p-8">
-              <h2 className="text-2xl font-semibold text-gray-800 mb-4">
-                Chat Features Coming Soon
-              </h2>
-              <p className="text-gray-600 mb-6">
-                Your chat application is ready to go! Start building your chat features.
-              </p>
-              <Button variant="default" className="bg-blue-600 hover:bg-blue-700 text-white">
-                Start Chatting
-              </Button>
-              <div>
-              </div>
-            </div>
-          </div>
-          <UserIdentity />
+          <RedirectToConversation/>
         </Authenticated>
       </div>
     </div>
   );
-}
-
-
-function UserIdentity() {
-  const identity = useQuery(api.users.GetMyIdentity);
-
-  return <div>
-    <h1 className="text-xl font-semibold "> Here is your JWT data </h1>
-    {identity === undefined && <p>Loading identity information...</p>}
-    {identity === null && <p>could't load the identity, maybe you are not properly authenticated</p>}
-
-    <div className="flex justify-items-start bg-gray-200">
-      {JSON.stringify(identity, null, 2)}
-    </div>
-  </div>
 }

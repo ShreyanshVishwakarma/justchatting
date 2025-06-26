@@ -1,9 +1,9 @@
 "use client"
 import { Button } from "@/components/ui/button";
 import { AuthLoading, Unauthenticated, Authenticated } from "convex/react";
-import Loading from './loading';
+import Loading from '../loading';
 import { useQuery } from "convex/react";
-import { api } from "../../convex/_generated/api";
+import { api } from "../../../convex/_generated/api";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 

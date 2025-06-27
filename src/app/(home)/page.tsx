@@ -15,7 +15,7 @@ const RedirectToConversation = () => {
   }, [router]);
   return (
     <div className="flex justify-center items-center h-64">
-      <Loading />
+      <Loading message="Redirecting ..."/>
     </div>
   );
 };

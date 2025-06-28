@@ -14,7 +14,6 @@ import { usePathname } from "next/navigation";
 import { MessageSquare, Users } from "lucide-react";
 import Link from "next/link"; 
 
-// Replace the useNavigation hook with inline functionality
 const RootLayout = ({ children }: { children: React.ReactNode }) => {
   const pathname = usePathname();
   
@@ -36,9 +35,9 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <TooltipProvider>
-      <div className="flex h-screen w-full flex-col md:flex-row bg-secondary">
+      <div className="flex h-screen w-full flex-col md:flex-row">
         {/* Sidebar Navigation */}
-        <aside className="flex w-full flex-row justify-around p-2 md:w-20 md:flex-col md:justify-center md:gap-4 order-last md:order-first">
+        <aside className="flex w-full flex-row justify-around p-2 md:w-20 md:flex-col md:justify-start md:gap-4 order-last md:order-first">
           <Card className="fixed bottom-0 left-0 z-10 flex w-full flex-row justify-around rounded-t-lg border-t bg-background p-2 md:py-2 md:px-1 md:static md:items-center md:h-full md:flex-col md:rounded-lg md:border">
             {navItems.map((item) => (
               <React.Fragment key={item.label}>
@@ -48,7 +47,6 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => {
                       asChild
                       variant={item.active ? "outline" : "ghost"}
                       size="icon"
-                      className=""
                     >
                       <Link href={item.href}>
                         <item.icon className="size-6" />
@@ -65,18 +63,18 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => {
               {/* User button at the bottom for desktop */}
               <Tooltip>
                 <TooltipTrigger asChild>
-                        <UserButton />
+                  <div className="w-8 h-8 flex items-center justify-center">
+                    <UserButton />
+                  </div>
                 </TooltipTrigger>
                 <TooltipContent side="right" sideOffset={2}>
                   <p>Profile</p>
                 </TooltipContent>
               </Tooltip>
             </div>
-            <div className="flex items-center md:hidden">
+            <div className="flex items-center md:hidden w-8 h-8 justify-center">
               {/* User button for mobile */}
-              <div className="w-8 h-8">
-                <UserButton />
-              </div>
+              <UserButton />
             </div>
           </Card>
         </aside>

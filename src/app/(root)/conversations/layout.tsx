@@ -7,12 +7,15 @@ import {
 } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 
-type Props = {}
+interface ConversationsLayoutProps {
+  children: React.ReactNode;
+}
 
-const conversationsPageLayout = (props: Props) => {
+const ConversationsLayout = ({ children }: ConversationsLayoutProps) => {
   return (
-    <div className="h-full flex py-2 flex-col">
-      <Card className="w-full md:w-1/4 flex-1 flex flex-col md:h-full">
+    <div className="h-full flex gap-2 p-2">
+      {/* Conversation list sidebar */}
+      <Card className="w-full md:w-1/4 flex flex-col md:h-full">
         <CardHeader>
           <CardTitle>Conversations</CardTitle>
         </CardHeader>
@@ -23,8 +26,13 @@ const conversationsPageLayout = (props: Props) => {
           </p>
         </CardContent>
       </Card>
+      
+      {/* Main content area */}
+      <div className="hidden md:block md:flex-1 h-full">
+        {children}
+      </div>
     </div>
   )
 }
 
-export default conversationsPageLayout
+export default ConversationsLayout

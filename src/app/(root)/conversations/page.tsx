@@ -1,11 +1,24 @@
 import React from 'react'
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
 
-type Props = {}
-
-const conversationsPage = (props: Props) => {
+const page = () => {
   return (
-    <div>conversationsPage</div>
+    <Card>
+      <CardContent>
+        <CardHeader>
+          <CardTitle>Conversations</CardTitle>
+        </CardHeader>
+        <p className="text-muted-foreground">
+          This is where you can view your conversations with friends.
+        </p>
+        </CardContent>
+    </Card>
   )
 }
 
-export default conversationsPage
+export default page

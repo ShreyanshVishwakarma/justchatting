@@ -12,6 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { usePathname } from "next/navigation";
 import { MessageSquare, Users } from "lucide-react";
+import Link from "next/link"; 
 
 // Replace the useNavigation hook with inline functionality
 const RootLayout = ({ children }: { children: React.ReactNode }) => {
@@ -35,7 +36,7 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <TooltipProvider>
-      <div className="flex h-screen w-full flex-col md:flex-row">
+      <div className="flex h-screen w-full flex-col md:flex-row bg-secondary">
         {/* Sidebar Navigation */}
         <aside className="flex w-full flex-row justify-around p-2 md:w-20 md:flex-col md:justify-center md:gap-4 order-last md:order-first">
           <Card className="fixed bottom-0 left-0 z-10 flex w-full flex-row justify-around rounded-t-lg border-t bg-background p-2 md:py-2 md:px-1 md:static md:items-center md:h-full md:flex-col md:rounded-lg md:border">
@@ -49,9 +50,9 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => {
                       size="icon"
                       className=""
                     >
-                      <a href={item.href}>
+                      <Link href={item.href}>
                         <item.icon className="size-6" />
-                      </a>
+                      </Link>
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent side="right" sideOffset={2}>

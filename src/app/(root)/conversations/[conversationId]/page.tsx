@@ -5,12 +5,6 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Send } from "lucide-react"
 
-type PageProps = {
-  params: {
-    conversationId: string;
-  };
-  searchParams: Record<string, string | string[] | undefined>;
-};
 
 // Example message data structure
 interface Message {
@@ -21,7 +15,7 @@ interface Message {
   isCurrentUser: boolean;
 }
 
-export default function ConversationPage({ params, searchParams }: PageProps) {
+export default function ConversationPage({ params, searchParams }: any) {
   const { conversationId } = params;
   
   const messages: Message[] = [

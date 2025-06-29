@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { usePathname } from "next/navigation";
 import { MessageSquare, Users } from "lucide-react";
 import Link from "next/link"; 
+import { ModeToggle } from "@/components/mode-toggle";
 
 const RootLayout = ({ children }: { children: React.ReactNode }) => {
   const pathname = usePathname();
@@ -59,8 +60,19 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => {
                 </Tooltip>
               </React.Fragment>
             ))}
-            <div className="mt-auto p-3 hidden md:flex md:justify-center md:items-center">
+            <div className="mt-auto p-3 hidden md:flex md:flex-col md:justify-center md:items-center md:gap-2">
               {/* User button at the bottom for desktop */}
+
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className="w-8 h-8 flex items-center justify-center">
+                    <ModeToggle />
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent side="right" sideOffset={2}>
+                  <p>Theme</p>
+                </TooltipContent>
+              </Tooltip>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <div className="w-8 h-8 flex items-center justify-center">
@@ -72,7 +84,7 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => {
                 </TooltipContent>
               </Tooltip>
             </div>
-            <div className="flex items-center md:hidden w-8 h-8 justify-center">
+            <div className="flex items-center md:hidden">
               {/* User button for mobile */}
               <UserButton />
             </div>
@@ -80,9 +92,9 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => {
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 overflow-y-auto pb-20 md:pb-0">
+        <div className="flex-1 overflow-y-auto md:pb-0">
           {children}
-        </main>
+        </div>
       </div>
     </TooltipProvider>
   );

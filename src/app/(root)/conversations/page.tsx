@@ -1,36 +1,26 @@
 import React from 'react'
-import Link from 'next/link'
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { MessageSquare } from "lucide-react"
 
-// Sample conversations - you'll replace this with real data later
-const conversations = [
-  { id: '1', name: 'John Doe', lastMessage: 'Hey, how are you doing?' },
-  { id: '2', name: 'Jane Smith', lastMessage: 'Did you finish the project?' },
-  { id: '3', name: 'Team Chat', lastMessage: 'Meeting at 3pm today' },
-];
-
-const ConversationsPage = () => {
+export default function ConversationsPage() {
   return (
-    <div className="p-4 space-y-4">
-      <h2 className="text-xl font-semibold">Recent Conversations</h2>
-      <div className="space-y-2">
-        {conversations.map(conversation => (
-          <Link href={`/conversations/${conversation.id}`} key={conversation.id}>
-            <Card className="cursor-pointer hover:bg-secondary/50 transition-colors">
-              <CardHeader className="p-4">
-                <CardTitle className="text-base">{conversation.name}</CardTitle>
-                <p className="text-sm text-muted-foreground">{conversation.lastMessage}</p>
-              </CardHeader>
-            </Card>
-          </Link>
-        ))}
-      </div>
+    <div className="h-full flex flex-col items-center justify-center">
+      <Card className="flex-1 w-full">
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <MessageSquare className="h-5 w-5 text-muted-foreground" />
+            <CardTitle>Conversations</CardTitle>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="text-center">
+            <h3 className="text-lg font-medium mb-2">No active conversations</h3>
+            <p className="text-muted-foreground text-sm">
+              This is where your chats will appear once they're implemented.
+            </p>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   )
 }
-
-export default ConversationsPage

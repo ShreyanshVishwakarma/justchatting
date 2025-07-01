@@ -1,0 +1,135 @@
+import { get } from "http";
+import {mutation} from "./_generated/server";
+import { v } from "convex/values";
+import { getUserbyTokenIdentifier } from "./_utils";
+
+export const createRequest = mutation({
+    args: {
+        email: v.string(),
+    },
+    handler: async (ctx, args) => {
+        const currentUser =  await ctx.auth?.getUserIdentity();
+        console.log("Current User:", currentUser);
+        if(!currentUser) {
+            throw new Error("User not authenticated");
+        }
+
+        const currentUserid = await getUserbyTokenIdentifier({
+            ctx,
+            tokenIdentifier: currentUser.tokenIdentifier,
+        });
+
+        if (args.email === currentUser.email) {
+            throw new Error("You cannot send a request to yourself");
+        }
+
+        const recieverId = await ctx.db.query("users")
+        .withIndex("by_email", (q) => q.eq("email",args.email)).unique();
+
+        if(!recieverId) {
+            throw new Error("User with this email does not exist"); 
+        }
+
+        if (!currentUserid) {
+            throw new Error("Current user not found");
+        }
+
+    const requestAlreadySent = await ctx.db
+      .query("requests")
+      .withIndex("by_senderId_recieverId", (q) =>
+      q.eq("senderId", currentUserid._id).eq("recieverId", recieverId._id))
+      .unique();
+
+    if (requestAlreadySent) {
+      throw new Error("Request already sent to this user");
+    }
+
+    const req = await ctx.db.insert("requests",{
+        senderId: currentUserid._id,
+        recieverId: recieverId._id,
+    })
+    if(!req){
+        throw new Error(
+            "request not creaated , please try again later"
+        )
+    }
+    return req;
+  }
+});
+
+export const acceptRequest = mutation({
+    args: {
+        requestId: v.id("requests"),
+    },
+    handler: async (ctx, args) => {
+        const currentUser = await ctx.auth?.getUserIdentity();
+        if (!currentUser) {
+            throw new Error("User not authenticated");
+        }
+
+        const currentUserid = await getUserbyTokenIdentifier({
+            ctx,
+            tokenIdentifier: currentUser.tokenIdentifier,
+        });
+
+        if (!currentUserid) {
+            throw new Error("Current user not found");
+        }
+
+        const request = await ctx.db.get(args.requestId);
+        if (!request) {
+            throw new Error("Request not found");
+        }
+
+        if (request.recieverId.toString() !== currentUserid._id.toString()) {
+            throw new Error("You are not authorized to accept this request");
+        }
+
+        const request_ = await ctx.db.get(args.requestId)
+        if (!request_) {
+            throw new Error("Request not found");
+        }
+        const conversationId = await ctx.db.insert("conversations", {})
+
+        await ctx.db.insert("friends", {
+            user1: request_.senderId,
+            user2: request_.recieverId,
+            consversationId : conversationId,
+        });
+
+        await ctx.db.delete(args.requestId);
+    }
+
+});
+
+export const rejectRequest = mutation({
+    args: {
+        requestId: v.id("requests"),
+    },
+    handler: async (ctx, args) => {
+        const currentUser = await ctx.auth?.getUserIdentity();
+        if (!currentUser) {
+            throw new Error("User not authenticated");
+        }
+
+        const currentUserid = await getUserbyTokenIdentifier({
+            ctx,
+            tokenIdentifier: currentUser.tokenIdentifier,
+        });
+
+        if (!currentUserid) {
+            throw new Error("Current user not found");
+        }
+
+        const request = await ctx.db.get(args.requestId);
+        if (!request) {
+            throw new Error("Request not found");
+        }
+
+        if (request.recieverId.toString() !== currentUserid._id.toString()) {
+            throw new Error("You are not authorized to reject this request");
+        }
+
+        await ctx.db.delete(args.requestId);
+    }
+});

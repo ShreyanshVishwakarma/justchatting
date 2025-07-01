@@ -29,15 +29,15 @@ export default function RootLayout({
   return (
     <ClerkProvider>
       <ConvexClientComponent>
-        <html lang="en">
-          <body
+        <ThemeProvider defaultTheme="system">
+         <html lang="en">
+           <body
             className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-          >
-            <ThemeProvider attribute="class" defaultTheme="system">
-            {children}
-             </ThemeProvider>
-          </body>
-        </html>
+               >
+             {children}
+            </body>
+         </html>
+        </ThemeProvider>
       </ConvexClientComponent>
     </ClerkProvider>
   );

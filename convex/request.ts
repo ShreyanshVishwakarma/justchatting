@@ -1,4 +1,3 @@
-import { get } from "http";
 import {mutation} from "./_generated/server";
 import { v } from "convex/values";
 import { getUserbyTokenIdentifier } from "./_utils";
@@ -91,10 +90,25 @@ export const acceptRequest = mutation({
         }
         const conversationId = await ctx.db.insert("conversations", {})
 
+        const conversationMembers1 = await ctx.db.insert("conversationMembers", {
+            conversationId: conversationId,
+            userId: request_.senderId,
+        });
+
+
+        const conversationMembers2 = await ctx.db.insert("conversationMembers", {
+            conversationId: conversationId,
+            userId: request_.recieverId,
+        });
+
+        if (!conversationMembers1 || !conversationMembers2) {
+            throw new Error("Conversation members not created");
+        }
+
         await ctx.db.insert("friends", {
             user1: request_.senderId,
             user2: request_.recieverId,
-            consversationId : conversationId,
+            conversationId : conversationId,
         });
 
         await ctx.db.delete(args.requestId);

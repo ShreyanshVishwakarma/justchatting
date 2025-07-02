@@ -24,18 +24,24 @@ export default defineSchema({
   friends: defineTable({
     user1: v.id("users"),
     user2: v.id("users"),
-    consversationId: v.id("conversations")
+    conversationId: v.id("conversations")
   }).index("by_user1_user2", ["user1", "user2"])
   .index("by_user2_user1", ["user2", "user1"])
   .index("by_user1", ["user1"])
   .index("by_user2", ["user2"])
-  .index("by_conversationId", ["consversationId"]),
+  .index("by_conversationId", ["conversationId"]),
 
   messages: defineTable({
     conversationId: v.id("conversations"),
     senderId: v.id("users"),
     content: v.string(),
     timestamp: v.number()
+  }).index("by_conversationId", ["conversationId"]),
+
+  conversationMembers: defineTable({
+    conversationId: v.id("conversations"),
+    userId: v.id("users")
   }).index("by_conversationId", ["conversationId"])
+  .index("by_userId", ["userId"])
 });
 

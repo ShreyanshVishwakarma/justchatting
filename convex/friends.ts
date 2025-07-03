@@ -10,7 +10,7 @@ export const get = query({
             throw new Error("User not authenticated");
         }
         const currentUserid = await ctx.db.query("users")
-            .withIndex("by_tokenIdentifier", (q) => q.eq("tokenIdentifier", currentUser.tokenIdentifier))
+            .withIndex("by_tokenIdentifier", (q) => q.eq("tokenIdentifier", currentUser.subject))
             .unique();
 
         if (!currentUserid) {

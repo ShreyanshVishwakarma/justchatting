@@ -13,7 +13,8 @@ export default defineSchema({
     senderId : v.id("users"),
     recieverId : v.id("users")
   }).index("by_senderId", ["senderId"])
-  .index("by_senderId_recieverId", ["senderId","recieverId"]),
+  .index("by_senderId_recieverId", ["senderId","recieverId"])
+  .index("by_recieverId", ["recieverId"]),
 
   conversations: defineTable({
     name: v.optional(v.string()),

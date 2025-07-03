@@ -1,4 +1,5 @@
 import React from 'react'
+import { FriendRequests } from './FriendRequests';
 import {
   Card,
   CardContent,
@@ -6,22 +7,31 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
+import { AddFriend } from './addfriends'
+import FriendList from './FriendList';
 
 type Props = {}
 
 const FriendsLayout = (props: Props) => {
+
   return (
-    <div className="h-full flex py-2 flex-col">
-      <Card className="w-full md:w-1/4 flex flex-col md:h-full">
-        <CardHeader>
-          <CardTitle>Friends</CardTitle>
+    <div className="h-full flex flex-col p-2">
+      <Card className="w-full md:w-80 flex flex-col h-full border-0 shadow-none bg-background">
+        <CardHeader className="px-4 py-3">
+          <CardTitle className="text-lg font-semibold">
+            <div className='flex items-center justify-between'>
+              <span>Friends</span>
+              <AddFriend/>
+            </div>
+          </CardTitle>
         </CardHeader>
-        <Separator/>
-        <CardContent className="flex-grow overflow-y-auto">
-          <p className="text-muted-foreground">
-            This is where you can view your friends and manage friend requests.
-            You can also start new conversations with your friends from here.
-          </p>
+        <Separator className="mx-4"/>
+        <CardContent className="flex-1 overflow-y-auto px-4 py-3 space-y-6">
+          <FriendRequests />
+          <div>
+            <h3 className="text-sm font-medium text-muted-foreground mb-3 uppercase tracking-wide">Friends</h3>
+            <FriendList/>
+          </div>
         </CardContent>
       </Card>
     </div>

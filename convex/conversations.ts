@@ -11,7 +11,7 @@ export const getConversations = query({
 
         const user = await getUserbyTokenIdentifier({
             ctx,
-            tokenIdentifier: identity.tokenIdentifier,
+            tokenIdentifier: identity.subject,
         });
 
         if (!user) {

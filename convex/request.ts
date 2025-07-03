@@ -1,5 +1,5 @@
 import {mutation} from "./_generated/server";
-import { v } from "convex/values";
+import { ConvexError, v } from "convex/values";
 import { getUserbyTokenIdentifier } from "./_utils";
 
 export const createRequest = mutation({
@@ -10,27 +10,27 @@ export const createRequest = mutation({
         const currentUser =  await ctx.auth?.getUserIdentity();
         console.log("Current User:", currentUser);
         if(!currentUser) {
-            throw new Error("User not authenticated");
+            throw new ConvexError("User not authenticated");
         }
 
         const currentUserid = await getUserbyTokenIdentifier({
             ctx,
-            tokenIdentifier: currentUser.tokenIdentifier,
+            tokenIdentifier: currentUser.subject,
         });
 
         if (args.email === currentUser.email) {
-            throw new Error("You cannot send a request to yourself");
+            throw new ConvexError("You cannot send a request to yourself");
         }
 
         const recieverId = await ctx.db.query("users")
         .withIndex("by_email", (q) => q.eq("email",args.email)).unique();
 
         if(!recieverId) {
-            throw new Error("User with this email does not exist"); 
+            throw new ConvexError("User with this email does not exist"); 
         }
 
         if (!currentUserid) {
-            throw new Error("Current user not found");
+            throw new ConvexError("Current user not found");
         }
 
     const requestAlreadySent = await ctx.db
@@ -68,7 +68,7 @@ export const acceptRequest = mutation({
 
         const currentUserid = await getUserbyTokenIdentifier({
             ctx,
-            tokenIdentifier: currentUser.tokenIdentifier,
+            tokenIdentifier: currentUser.subject,
         });
 
         if (!currentUserid) {
@@ -128,7 +128,7 @@ export const rejectRequest = mutation({
 
         const currentUserid = await getUserbyTokenIdentifier({
             ctx,
-            tokenIdentifier: currentUser.tokenIdentifier,
+            tokenIdentifier: currentUser.subject,
         });
 
         if (!currentUserid) {

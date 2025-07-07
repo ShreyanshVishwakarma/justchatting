@@ -97,68 +97,42 @@ const AnimatedGradientText = ({ children, className = "" }: AnimatedGradientText
   </span>
 );
 
-// Spotlight effect for mouse following
-const SpotlightEffect = () => {
-  useEffect(() => {
-    const spotlightElements = document.querySelectorAll('.spotlight');
-    
-    const handleMouseMove = (event: MouseEvent) => {
-      spotlightElements.forEach(element => {
-        const rect = element.getBoundingClientRect();
-        const x = ((event.clientX - rect.left) / rect.width) * 100;
-        const y = ((event.clientY - rect.top) / rect.height) * 100;
-        
-        (element as HTMLElement).style.setProperty('--x', `${x}%`);
-        (element as HTMLElement).style.setProperty('--y', `${y}%`);
-      });
-    };
-    
-    document.addEventListener('mousemove', handleMouseMove);
-    
-    return () => {
-      document.removeEventListener('mousemove', handleMouseMove);
-    };
-  }, []);
-  
-  return null;
-};
-
 export default function Home() {
   const features = [
     {
       icon: Shield,
       title: "End-to-End Encryption",
-      description: "Your messages are encrypted on the server and the server cannot decrypt them. Only you and your recipient have the keys.",
+      description: "Your messages are secured with military-grade encryption. Only you and your recipient can read them.",
       delay: 0
     },
     {
       icon: Eye,
-      title: "Local-First Experience",
-      description: "Your messages are stored securely in your browser (IndexedDB) for fast access while also being encrypted on the server.",
+      title: "Ultimate Privacy",
+      description: "We don't store your messages on our servers. Your conversations remain completely private.",
       delay: 100
     },
     {
       icon: Zap,
       title: "Lightning Fast",
-      description: "Real-time messaging with zero lag. Our local-first approach ensures messages appear instantly, even with slower connections.",
+      description: "Real-time messaging with zero lag. Modern architecture built for speed and reliability.",
       delay: 200
     },
     {
       icon: Users,
       title: "Connect Globally",
-      description: "Chat with people from around the world. Build meaningful connections across borders with private, secure messaging.",
+      description: "Chat with people from around the world. Build meaningful connections across borders.",
       delay: 300
     },
     {
       icon: Lock,
-      title: "You Own Your Data",
-      description: "Only you hold the encryption keys. No one else, including us, can access your private conversations.",
+      title: "Secure by Design",
+      description: "Built with security at its core. Your data is protected with the latest security protocols.",
       delay: 400
     },
     {
       icon: Heart,
-      title: "User-Centric Design",
-      description: "A beautiful, intuitive interface with dark mode support and responsive design for any device.",
+      title: "User-Centric",
+      description: "Designed with you in mind. Clean, intuitive interface that puts user experience first.",
       delay: 500
     }
   ];
@@ -184,25 +158,24 @@ export default function Home() {
   const faqs: FaqItemProps[] = [
     {
       question: "How secure is Just Chatting?",
-      answer: "Just Chatting uses strong encryption to protect your messages. Messages are encrypted on the server, and only you and your recipient hold the keys needed to decrypt them. The server cannot read your messages."
+      answer: "Just Chatting uses state-of-the-art end-to-end encryption, ensuring that only you and your recipient can read your messages. We have no access to your conversations."
     },
     {
       question: "Is Just Chatting free to use?",
       answer: "Yes! Just Chatting is completely free for personal use with all security features included."
     },
     {
-      question: "How does the local-first approach work?",
-      answer: "Your messages are stored in your browser using IndexedDB for immediate access and offline capability, while also being securely synced to our servers in encrypted form. This creates a seamless experience that's both fast and secure."
+      question: "Can I use Just Chatting on multiple devices?",
+      answer: "Absolutely! Your account syncs seamlessly across all your devices while maintaining the same level of security."
     },
     {
       question: "How does Just Chatting protect my privacy?",
-      answer: "We encrypt your messages on the server where we can't decrypt them, store them locally in your browser for speed, and minimize the metadata we collect. Your conversations are truly private because you control the encryption keys."
+      answer: "We don't store your messages on our servers, collect minimal user data, and implement zero-knowledge architecture to ensure your privacy remains intact."
     }
   ];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background/95 to-muted/50">
-      <SpotlightEffect />
       <AuthLoading>
         <div className="flex justify-center items-center h-screen">
           <Loading />
@@ -211,136 +184,51 @@ export default function Home() {
 
       <Unauthenticated>
         <div className="relative overflow-hidden">
-          {/* Animated background patterns */}
-          <div className="absolute inset-0 -z-10 opacity-30">
-            <div className="absolute top-1/4 left-1/4 w-32 h-32 rounded-full border border-primary/30 animate-pulse-slow"></div>
-            <div className="absolute top-1/3 right-1/4 w-48 h-48 rounded-full border border-purple-500/20 animate-pulse-slow" style={{animationDelay: '1s'}}></div>
-            <div className="absolute bottom-1/3 left-1/3 w-24 h-24 rounded-full border border-primary/20 animate-pulse-slow" style={{animationDelay: '2s'}}></div>
-            <div className="absolute -top-10 -right-10 w-64 h-64 bg-gradient-to-br from-primary/5 to-purple-500/10 rounded-full blur-3xl"></div>
-          </div>
-          
           {/* Hero Section with enhanced animations */}
           <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16">
-            <div className="absolute inset-x-0 -top-40 -z-10 transform-gpu overflow-hidden blur-3xl sm:-top-80" aria-hidden="true">
-              <div className="relative left-[calc(50%-11rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 rotate-[30deg] bg-gradient-to-tr from-primary to-purple-500 opacity-20 sm:left-[calc(50%-30rem)] sm:w-[72.1875rem]" style={{ clipPath: "polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)" }}></div>
-            </div>
-            
-            <div className="absolute inset-x-0 top-[calc(100%-13rem)] -z-10 transform-gpu overflow-hidden blur-3xl sm:top-[calc(100%-30rem)]" aria-hidden="true">
-              <div className="relative left-[calc(50%+3rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 bg-gradient-to-tr from-purple-500 to-pink-500 opacity-20 sm:left-[calc(50%+36rem)] sm:w-[72.1875rem]" style={{ clipPath: "polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)" }}></div>
-            </div>
-            
-            <div className="text-center space-y-10">
+            <div className="text-center space-y-8">
               {/* Main Heading with staggered animation */}
-              <div className="space-y-6 animate-fade-in">
-                <div className="relative">
-                  <div className="absolute -top-16 -z-10 left-1/2 transform -translate-x-1/2 w-64 h-64 bg-primary/10 rounded-full blur-3xl"></div>
-                  <div className="relative">
-                    <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight">
-                      Welcome to{" "}
-                    </h1>
-                    <div className="mt-4 relative">
-                      <div className="absolute -z-10 inset-0 bg-gradient-to-r from-primary/10 via-purple-500/10 to-pink-500/10 rounded-xl blur-lg animate-pulse-slow"></div>
-                      <div className="backdrop-blur-sm border border-primary/20 rounded-xl shadow-lg p-4 transform hover:scale-[1.01] transition-transform">
-                        <AnimatedGradientText className="block leading-tight text-4xl md:text-6xl lg:text-7xl font-bold">
-                          Just Chatting
-                        </AnimatedGradientText>
-                      </div>
-                      <div className="absolute -bottom-2 -right-2 w-6 h-6 bg-primary rounded-full shadow-lg"></div>
-                      <div className="absolute -bottom-2 -left-2 w-6 h-6 bg-purple-500 rounded-full shadow-lg"></div>
-                      <div className="absolute -top-2 -right-2 w-6 h-6 bg-pink-500 rounded-full shadow-lg"></div>
-                      <div className="absolute -top-2 -left-2 w-6 h-6 bg-primary rounded-full shadow-lg"></div>
-                    </div>
-                  </div>
-                </div>
-                
-                {/* Enhanced message display */}
-                <div className="relative bg-card/40 backdrop-blur-md border border-primary/20 rounded-xl p-6 md:p-8 max-w-3xl mx-auto shadow-lg transform hover:scale-[1.02] transition-all duration-300 spotlight">
-                  <div className="absolute -top-5 left-6">
-                    <div className="flex space-x-1.5">
-                      <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-                      <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
-                      <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                    </div>
-                  </div>
-                  
-                  <div className="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-6">
-                    <div className="shrink-0">
-                      <div className="bg-gradient-to-br from-primary/30 to-purple-600/30 p-4 rounded-full shadow-lg shadow-primary/10">
-                        <Shield className="h-8 w-8 text-primary animate-pulse-slow" />
-                      </div>
-                    </div>
-                    <div className="text-left">
-                      <h2 className="text-xl md:text-2xl font-bold mb-3 typing-indicator">Secure messaging with true privacy</h2>
-                      <div className="space-y-2">
-                        <div className="flex items-center">
-                          <div className="w-2 h-2 bg-primary/70 rounded-full mr-2"></div>
-                          <p className="text-base md:text-lg text-foreground leading-relaxed">
-                            Your messages are <span className="text-highlight active relative px-1 text-primary font-semibold">encrypted on the server</span>
-                          </p>
-                        </div>
-                        <div className="flex items-center">
-                          <div className="w-2 h-2 bg-purple-500/70 rounded-full mr-2"></div>
-                          <p className="text-base md:text-lg text-foreground leading-relaxed">
-                            And <span className="text-highlight active relative px-1 text-primary font-semibold">stored locally</span> for instant access
-                          </p>
-                        </div>
-                      </div>
-                      <div className="mt-4 backdrop-blur-sm bg-gradient-to-r from-primary/10 to-purple-500/10 p-3 rounded-lg border border-primary/10">
-                        <p className="text-lg md:text-xl font-bold bg-gradient-to-r from-primary to-purple-500 bg-clip-text text-transparent">
-                          You own the keys. You control your data.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+              <div className="space-y-4 animate-fade-in">
+                <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight">
+                  Welcome to{" "}
+                  <AnimatedGradientText className="block mt-2">
+                    Just Chatting
+                  </AnimatedGradientText>
+                </h1>
+                <p className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+                  The most secure, private, and modern way to connect with people worldwide. 
+                  <span className="block mt-2 text-primary font-semibold">
+                    Chat without compromise.
+                  </span>
+                </p>
               </div>
 
               {/* Enhanced CTA Section */}
-              <div className="relative bg-gradient-to-br from-card/90 to-background/90 backdrop-blur-lg rounded-2xl p-8 md:p-10 shadow-2xl border border-primary/20 max-w-md mx-auto animate-slide-up transform hover:shadow-primary/20 hover:-translate-y-1 transition-all duration-300 spotlight">
-                <div className="absolute -z-10 inset-0 bg-primary/5 rounded-2xl blur-xl"></div>
-                <div className="absolute -z-10 -inset-0.5 bg-gradient-to-r from-primary/20 to-purple-500/20 rounded-2xl blur-sm opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                <div className="space-y-5">
-                  <div className="flex items-center justify-center">
-                    <div className="bg-gradient-to-br from-primary/20 to-purple-600/20 p-4 rounded-xl shadow-inner">
-                      <div className="relative">
-                        <div className="absolute inset-0 bg-primary/10 rounded-full blur-md animate-pulse"></div>
-                        <MessageCircle className="h-8 w-8 text-primary animate-bounce-subtle relative z-10" />
-                      </div>
-                    </div>
+              <div className="bg-card/80 backdrop-blur-sm rounded-2xl p-8 shadow-xl border border-primary/10 max-w-md mx-auto animate-slide-up">
+                <div className="space-y-4">
+                  <div className="flex items-center justify-center space-x-2 text-primary">
+                    <MessageCircle className="h-6 w-6" />
+                    <h2 className="text-2xl font-bold">Ready to Chat?</h2>
                   </div>
-                  <h2 className="text-2xl md:text-3xl font-bold text-center bg-clip-text text-transparent bg-gradient-to-r from-primary via-purple-500 to-primary animate-gradient-x">
-                    Experience Local-First Chat
-                  </h2>
-                  <div className="bg-gradient-to-r from-card to-background/80 p-4 rounded-xl border border-primary/10 shadow-inner">
-                    <p className="text-foreground text-center text-base md:text-lg">
-                      Chat instantly with messages that load from your device, while being securely backed up with encryption.
-                    </p>
-                  </div>
-                  <div className="flex flex-col items-center justify-center space-y-5 pt-2">
-                    <Button className="w-full py-7 bg-gradient-to-r from-primary to-purple-600 hover:opacity-95 hover:scale-[1.02] transition-all shadow-lg hover:shadow-primary/30 text-base font-medium rounded-xl group">
-                      <span>Get Started Now</span>
-                      <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                  <p className="text-muted-foreground">
+                    Sign in to access all features and start secure conversations.
+                  </p>
+                  <div className="flex flex-col items-center justify-center space-y-4 mt-6">
+                    <Button className="w-full bg-gradient-to-r from-primary to-purple-600 hover:opacity-90 transition-opacity">
+                      Get Started
                     </Button>
-                    <div className="flex items-center justify-center space-x-2 text-sm text-muted-foreground bg-background/50 px-3 py-1.5 rounded-full">
-                      <Globe className="h-4 w-4 text-primary/70" />
-                      <span>Join users who value privacy & speed</span>
+                    <div className="flex items-center justify-center space-x-2 text-sm text-muted-foreground">
+                      <Globe className="h-4 w-4" />
+                      <span>Join thousands of users worldwide</span>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
-            
-            <div className="absolute inset-x-0 top-[calc(100%-13rem)] -z-10 transform-gpu overflow-hidden blur-3xl sm:top-[calc(100%-30rem)]" aria-hidden="true">
-              <div className="relative left-[calc(50%+3rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 bg-gradient-to-tr from-purple-500 to-pink-500 opacity-20 sm:left-[calc(50%+36rem)] sm:w-[72.1875rem]" style={{ clipPath: "polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)" }}></div>
             </div>
           </div>
 
           {/* Features Section with enhanced styling */}
           <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 bg-muted/20 backdrop-blur-sm rounded-3xl my-8 border border-muted/10">
-            <div className="absolute inset-x-0 top-1/2 -z-10 transform-gpu overflow-hidden blur-3xl" aria-hidden="true">
-              <div className="relative left-[calc(50%+3rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 bg-gradient-to-tr from-purple-500 to-pink-500 opacity-20 sm:left-[calc(50%+36rem)] sm:w-[72.1875rem]" style={{ clipPath: "polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)" }}></div>
-            </div>
-            
             <div className="text-center mb-16">
               <h2 className="text-3xl md:text-4xl font-bold mb-4">
                 Why Choose <AnimatedGradientText>Just Chatting?</AnimatedGradientText>
@@ -365,14 +253,14 @@ export default function Home() {
                   Seamless <AnimatedGradientText>Experience</AnimatedGradientText> Across Devices
                 </h2>
                 <p className="text-muted-foreground text-lg leading-relaxed">
-                  Chat anywhere, anytime. Just Chatting stores messages locally on each device for instant access, while securely synchronizing your encrypted conversations across all your devices.
+                  Chat anywhere, anytime. Just Chatting synchronizes your conversations across all your devices while maintaining the same level of security and privacy.
                 </p>
                 <ul className="space-y-3">
                   {[
-                    "Messages load instantly from local storage (IndexedDB)",
-                    "Encrypted sync keeps all your devices up to date",
-                    "Works offline with seamless reconnection",
-                    "Native-like performance on both desktop and mobile"
+                    "Responsive design that works on any screen size",
+                    "Native-like performance on both desktop and mobile",
+                    "Background synchronization keeps all devices up to date",
+                    "Low data usage for efficient operation"
                   ].map((item, i) => (
                     <li key={i} className="flex items-start">
                       <div className="mr-3 mt-1 text-primary">
@@ -418,7 +306,7 @@ export default function Home() {
                   Security is Our <AnimatedGradientText>Top Priority</AnimatedGradientText>
                 </h2>
                 <p className="text-muted-foreground text-lg leading-relaxed">
-                  We've built Just Chatting with a privacy-first approach. Your data security is non-negotiable.
+                  We've built Just Chatting with security at its core. Your privacy is non-negotiable.
                 </p>
                 <div className="space-y-4">
                   <div className="flex items-start">
@@ -426,8 +314,8 @@ export default function Home() {
                       <Shield className="h-6 w-6 text-primary" />
                     </div>
                     <div>
-                      <h3 className="font-medium">Server-side encryption</h3>
-                      <p className="text-sm text-muted-foreground">Your messages are encrypted on our servers, and we don't hold the keys. Only you and your recipient can decrypt them.</p>
+                      <h3 className="font-medium">End-to-end encryption</h3>
+                      <p className="text-sm text-muted-foreground">Your messages are secured from the moment you hit send until they're received.</p>
                     </div>
                   </div>
                   <div className="flex items-start">
@@ -435,8 +323,8 @@ export default function Home() {
                       <Eye className="h-6 w-6 text-primary" />
                     </div>
                     <div>
-                      <h3 className="font-medium">Local-first architecture</h3>
-                      <p className="text-sm text-muted-foreground">Messages are stored in your browser using IndexedDB, making chats instantly accessible while still being securely backed up.</p>
+                      <h3 className="font-medium">Zero data retention</h3>
+                      <p className="text-sm text-muted-foreground">We don't store your message content on our servers. Period.</p>
                     </div>
                   </div>
                   <div className="flex items-start">
@@ -445,7 +333,7 @@ export default function Home() {
                     </div>
                     <div>
                       <h3 className="font-medium">Secure authentication</h3>
-                      <p className="text-sm text-muted-foreground">Industry-standard authentication protects your account with optional multi-factor security.</p>
+                      <p className="text-sm text-muted-foreground">Multi-factor authentication options to keep your account secure.</p>
                     </div>
                   </div>
                 </div>
@@ -492,9 +380,9 @@ export default function Home() {
           {/* Final CTA */}
           <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
             <div className="bg-gradient-to-br from-primary/20 to-purple-600/20 rounded-3xl p-8 md:p-12 shadow-xl border border-primary/10 text-center animate-pulse-slow">
-              <h2 className="text-2xl md:text-3xl font-bold mb-4">Ready for Truly Private Messaging?</h2>
+              <h2 className="text-2xl md:text-3xl font-bold mb-4">Ready to Experience Secure Messaging?</h2>
               <p className="text-lg md:text-xl mb-8 max-w-2xl mx-auto text-muted-foreground">
-                Join Just Chatting today and experience the perfect balance of speed and security. Local-first for performance, encrypted storage for privacy.
+                Join Just Chatting today and take control of your digital conversations with our secure, private, and lightning-fast messaging platform.
               </p>
               <Button size="lg" className="bg-gradient-to-r from-primary to-purple-600 hover:opacity-90 transition-opacity px-8">
                 Start Chatting Now
@@ -509,8 +397,6 @@ export default function Home() {
             <div className="absolute top-1/4 left-1/4 w-40 h-40 bg-gradient-to-br from-blue-500/10 to-primary/10 rounded-full blur-2xl animate-pulse" style={{animationDelay: '1.5s'}}></div>
             <div className="absolute bottom-1/3 right-1/4 w-60 h-60 bg-gradient-to-br from-purple-500/10 to-primary/10 rounded-full blur-2xl animate-pulse" style={{animationDelay: '3s'}}></div>
           </div>
-
-          <SpotlightEffect />
         </div>
       </Unauthenticated>
 

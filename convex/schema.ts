@@ -19,7 +19,8 @@ export default defineSchema({
   conversations: defineTable({
     name: v.optional(v.string()),
     imageURL: v.optional(v.string()),
-    lastMessageId : v.optional(v.id("messages"))
+    lastMessageId : v.optional(v.id("messages")),
+    isGroup : v.optional(v.boolean())
   }),
 
   friends: defineTable({

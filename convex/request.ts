@@ -88,7 +88,11 @@ export const acceptRequest = mutation({
         if (!request_) {
             throw new Error("Request not found");
         }
-        const conversationId = await ctx.db.insert("conversations", {})
+
+        const conversationId = await ctx.db.insert("conversations", {
+            // You can set a default image and name if needed (for groups only)
+            // Initially, there is no last message
+        })
 
         const conversationMembers1 = await ctx.db.insert("conversationMembers", {
             conversationId: conversationId,

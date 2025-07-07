@@ -37,7 +37,10 @@ export const get = query({
         if (!friend) {
           throw new Error("Friend not found");
         }
-        return friend;
+        return {
+          ...friend,
+          conversationId: friendship.conversationId,
+        };
       })
     );
 

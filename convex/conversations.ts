@@ -1,6 +1,7 @@
 import { query } from "./_generated/server";
 import { getUserbyTokenIdentifier } from "./_utils";
 
+// refactor it to get only group conversations after it is implemented
 export const getConversations = query({
     args: {},
     handler: async (ctx, args) => {

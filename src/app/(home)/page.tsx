@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { AuthLoading, Unauthenticated, Authenticated } from "convex/react";
 import Loading from '../loading';
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Shield, Lock, MessageCircle, Users, Zap, Eye, Globe, Heart, CheckCircle, ArrowRight, Fingerprint } from "lucide-react";
 import { LucideIcon } from "lucide-react";
 
@@ -38,7 +38,7 @@ const RedirectToConversation = () => {
   }, [router]);
   return (
     <div className="flex justify-center items-center h-64">
-      <Loading message="Redirecting to your conversations..."/>
+      <Loading message="Redirecting..."/>
     </div>
   );
 };
@@ -97,30 +97,37 @@ const AnimatedGradientText = ({ children, className = "" }: AnimatedGradientText
   </span>
 );
 
-// Spotlight effect for mouse following
-const SpotlightEffect = () => {
-  useEffect(() => {
-    const spotlightElements = document.querySelectorAll('.spotlight');
-    
-    const handleMouseMove = (event: MouseEvent) => {
-      spotlightElements.forEach(element => {
-        const rect = element.getBoundingClientRect();
-        const x = ((event.clientX - rect.left) / rect.width) * 100;
-        const y = ((event.clientY - rect.top) / rect.height) * 100;
-        
-        (element as HTMLElement).style.setProperty('--x', `${x}%`);
-        (element as HTMLElement).style.setProperty('--y', `${y}%`);
-      });
-    };
-    
-    document.addEventListener('mousemove', handleMouseMove);
-    
-    return () => {
-      document.removeEventListener('mousemove', handleMouseMove);
-    };
-  }, []);
+// Typing animation component for text
+const TypingAnimation = ({ text, delay = 100, className = "" }: { text: string, delay?: number, className?: string }) => {
+  const [displayText, setDisplayText] = useState('');
+  const [isComplete, setIsComplete] = useState(false);
   
-  return null;
+  useEffect(() => {
+    let currentIndex = 0;
+    setIsComplete(false);
+    
+    const interval = setInterval(() => {
+      if (currentIndex <= text.length) {
+        setDisplayText(text.substring(0, currentIndex));
+        currentIndex++;
+        
+        if (currentIndex > text.length) {
+          setIsComplete(true);
+        }
+      } else {
+        clearInterval(interval);
+      }
+    }, delay);
+    
+    return () => clearInterval(interval);
+  }, [text, delay]);
+  
+  return (
+    <span className={className}>
+      {displayText}
+      <span className={`typing-cursor ${isComplete ? "opacity-0" : ""}`}></span>
+    </span>
+  );
 };
 
 export default function Home() {
@@ -202,10 +209,9 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background/95 to-muted/50">
-      <SpotlightEffect />
       <AuthLoading>
         <div className="flex justify-center items-center h-screen">
-          <Loading />
+          <Loading message="Checking authentication" />
         </div>
       </AuthLoading>
 
@@ -220,7 +226,7 @@ export default function Home() {
           </div>
           
           {/* Hero Section with enhanced animations */}
-          <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16">
+          <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-20">
             <div className="absolute inset-x-0 -top-40 -z-10 transform-gpu overflow-hidden blur-3xl sm:-top-80" aria-hidden="true">
               <div className="relative left-[calc(50%-11rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 rotate-[30deg] bg-gradient-to-tr from-primary to-purple-500 opacity-20 sm:left-[calc(50%-30rem)] sm:w-[72.1875rem]" style={{ clipPath: "polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)" }}></div>
             </div>
@@ -229,9 +235,8 @@ export default function Home() {
               <div className="relative left-[calc(50%+3rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 bg-gradient-to-tr from-purple-500 to-pink-500 opacity-20 sm:left-[calc(50%+36rem)] sm:w-[72.1875rem]" style={{ clipPath: "polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)" }}></div>
             </div>
             
-            <div className="text-center space-y-10">
-              {/* Main Heading with staggered animation */}
-              <div className="space-y-6 animate-fade-in">
+            <div className="text-center space-y-16">
+              {/* Main Heading with staggered animation */}                <div className="space-y-10 animate-fade-in">
                 <div className="relative">
                   <div className="absolute -top-16 -z-10 left-1/2 transform -translate-x-1/2 w-64 h-64 bg-primary/10 rounded-full blur-3xl"></div>
                   <div className="relative">
@@ -240,10 +245,12 @@ export default function Home() {
                     </h1>
                     <div className="mt-4 relative">
                       <div className="absolute -z-10 inset-0 bg-gradient-to-r from-primary/10 via-purple-500/10 to-pink-500/10 rounded-xl blur-lg animate-pulse-slow"></div>
-                      <div className="backdrop-blur-sm border border-primary/20 rounded-xl shadow-lg p-4 transform hover:scale-[1.01] transition-transform">
-                        <AnimatedGradientText className="block leading-tight text-4xl md:text-6xl lg:text-7xl font-bold">
-                          Just Chatting
-                        </AnimatedGradientText>
+                      <div className="backdrop-blur-sm border border-primary/20 rounded-xl shadow-lg p-4 md:p-6">
+                        <TypingAnimation 
+                          text="Just Chatting" 
+                          delay={150} 
+                          className="block leading-tight text-4xl md:text-6xl lg:text-7xl font-bold bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent" 
+                        />
                       </div>
                       <div className="absolute -bottom-2 -right-2 w-6 h-6 bg-primary rounded-full shadow-lg"></div>
                       <div className="absolute -bottom-2 -left-2 w-6 h-6 bg-purple-500 rounded-full shadow-lg"></div>
@@ -254,7 +261,7 @@ export default function Home() {
                 </div>
                 
                 {/* Enhanced message display */}
-                <div className="relative bg-card/40 backdrop-blur-md border border-primary/20 rounded-xl p-6 md:p-8 max-w-3xl mx-auto shadow-lg transform hover:scale-[1.02] transition-all duration-300 spotlight">
+                <div className="relative bg-card/40 backdrop-blur-md border border-primary/20 rounded-xl p-6 md:p-8 max-w-3xl mx-auto shadow-lg transform hover:scale-[1.02] transition-all duration-300">
                   <div className="absolute -top-5 left-6">
                     <div className="flex space-x-1.5">
                       <div className="w-3 h-3 bg-red-500 rounded-full"></div>
@@ -270,7 +277,12 @@ export default function Home() {
                       </div>
                     </div>
                     <div className="text-left">
-                      <h2 className="text-xl md:text-2xl font-bold mb-3 typing-indicator">Secure messaging with true privacy</h2>
+                      <h2 className="text-xl md:text-2xl font-bold mb-3">
+                        <TypingAnimation 
+                          text="Secure messaging with true privacy" 
+                          delay={80}
+                        />
+                      </h2>
                       <div className="space-y-2">
                         <div className="flex items-center">
                           <div className="w-2 h-2 bg-primary/70 rounded-full mr-2"></div>
@@ -296,7 +308,7 @@ export default function Home() {
               </div>
 
               {/* Enhanced CTA Section */}
-              <div className="relative bg-gradient-to-br from-card/90 to-background/90 backdrop-blur-lg rounded-2xl p-8 md:p-10 shadow-2xl border border-primary/20 max-w-md mx-auto animate-slide-up transform hover:shadow-primary/20 hover:-translate-y-1 transition-all duration-300 spotlight">
+              <div className="relative bg-gradient-to-br from-card/90 to-background/90 backdrop-blur-lg rounded-2xl p-8 md:p-10 shadow-2xl border border-primary/20 max-w-md mx-auto animate-slide-up transform hover:shadow-primary/20 hover:-translate-y-1 transition-all duration-300">
                 <div className="absolute -z-10 inset-0 bg-primary/5 rounded-2xl blur-xl"></div>
                 <div className="absolute -z-10 -inset-0.5 bg-gradient-to-r from-primary/20 to-purple-500/20 rounded-2xl blur-sm opacity-0 group-hover:opacity-100 transition-opacity"></div>
                 <div className="space-y-5">
@@ -336,7 +348,7 @@ export default function Home() {
           </div>
 
           {/* Features Section with enhanced styling */}
-          <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 bg-muted/20 backdrop-blur-sm rounded-3xl my-8 border border-muted/10">
+          <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-28 bg-muted/20 backdrop-blur-sm rounded-3xl my-16 border border-muted/10">
             <div className="absolute inset-x-0 top-1/2 -z-10 transform-gpu overflow-hidden blur-3xl" aria-hidden="true">
               <div className="relative left-[calc(50%+3rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 bg-gradient-to-tr from-purple-500 to-pink-500 opacity-20 sm:left-[calc(50%+36rem)] sm:w-[72.1875rem]" style={{ clipPath: "polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)" }}></div>
             </div>
@@ -509,8 +521,6 @@ export default function Home() {
             <div className="absolute top-1/4 left-1/4 w-40 h-40 bg-gradient-to-br from-blue-500/10 to-primary/10 rounded-full blur-2xl animate-pulse" style={{animationDelay: '1.5s'}}></div>
             <div className="absolute bottom-1/3 right-1/4 w-60 h-60 bg-gradient-to-br from-purple-500/10 to-primary/10 rounded-full blur-2xl animate-pulse" style={{animationDelay: '3s'}}></div>
           </div>
-
-          <SpotlightEffect />
         </div>
       </Unauthenticated>
 

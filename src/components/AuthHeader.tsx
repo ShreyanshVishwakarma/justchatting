@@ -49,7 +49,7 @@ export default function AuthHeader() {
               <UserButton />
             </Authenticated>
             <AuthLoading>
-              <div className="animate-spin rounded-full h-6 w-6 border-2 border-primary border-t-transparent shadow-md"></div>
+              <div className="h-3 w-3 rounded-full bg-primary animate-pulse"></div>
             </AuthLoading>
           </div>
         </div>

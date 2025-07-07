@@ -1,5 +1,5 @@
+"use client";
 import AuthHeader from "@/components/AuthHeader";
-
 
 export default function HomeLayout({
   children,
@@ -9,7 +9,9 @@ export default function HomeLayout({
   return (
     <>
       <AuthHeader />
-      <main className="min-h-screen">{children}</main>
+      <main className="min-h-screen">
+        {children}
+      </main>
     </>
   );
 }

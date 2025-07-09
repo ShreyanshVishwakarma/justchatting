@@ -24,9 +24,9 @@ const ConversationList = () => {
     );
   }
 
-  
+
   return (
-    <div className="p-4 space-y-1">
+    <div className="space-y-1">
       {friends.length === 0 ? (
         <div className="text-center text-sm text-muted-foreground py-8">
           <p>No conversations yet.</p>
@@ -34,7 +34,7 @@ const ConversationList = () => {
         </div>
       ) : (
         friends.map(friend => (
-          <Link href={`/conversations/${friend._id}`} key={friend._id}>
+          <Link href={`/conversations/${friend.conversationId}`} key={friend.conversationId}>
             <div className="flex items-center gap-3 p-3 hover:bg-accent hover:text-accent-foreground transition-colors cursor-pointer rounded-md group">
               <Avatar className="h-10 w-10">
                 <AvatarImage src={friend.imageURL || undefined} />

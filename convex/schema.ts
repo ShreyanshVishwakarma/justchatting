@@ -38,7 +38,7 @@ export default defineSchema({
     senderId: v.id("users"),
     content: v.string(),
     timestamp: v.number()
-  }).index("by_conversationId", ["conversationId"]),
+  }).index("by_conversationId_and_time", ["conversationId" , "timestamp"]),
 
   conversationMembers: defineTable({
     conversationId: v.id("conversations"),

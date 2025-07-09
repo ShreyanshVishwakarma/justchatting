@@ -1,20 +1,55 @@
-import { ConvexError, v } from "convex/values";
 import { query } from "./_generated/server";
+import { v } from "convex/values";
+import { paginationOptsValidator } from "convex/server";
+import { ConvexError } from "convex/values";
 
-export const getMessages = query({
-    args: { 
-        conversationID : v.id("conversations")
-    },
-    handler: async (ctx , args) => {
-        const identity = await ctx.auth.getUserIdentity();
-        if(!identity) {
-            throw new ConvexError("Not authenticated");
-        }
-    
-        const messages = await ctx.db.query("messages").withIndex("by_conversationId", (q) => q.eq("conversationId", args.conversationID)).collect();
-        if(!messages) {
-            return [];
-        }
-        return messages;
+export const get = query({
+  args: {
+    conversationID: v.id("conversations"),
+    paginationOpts: paginationOptsValidator,
+  },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      throw new ConvexError("Not authenticated");
     }
+
+    const result = await ctx.db
+      .query("messages")
+      .withIndex("by_conversationId_and_time", (q) =>
+        q.eq("conversationId", args.conversationID)
+      )
+      .order("desc") // Newest messages first
+      .paginate(args.paginationOpts);
+
+    return {
+      ...result,
+      page: result.page.map((message) => {
+        const { conversationId, ...messageWithoutConversationId } = message;
+        return messageWithoutConversationId;
+      }),
+    };
+  },
+});
+
+export const getLastMessage = query({
+  args: {
+    conversationId: v.id("conversations"),
+  },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      return null;
+    }
+
+    const lastMessage = await ctx.db
+      .query("messages")
+      .withIndex("by_conversationId_and_time", (q) =>
+        q.eq("conversationId", args.conversationId)
+      )
+      .order("desc")
+      .first();
+
+    return lastMessage;
+  },
 });

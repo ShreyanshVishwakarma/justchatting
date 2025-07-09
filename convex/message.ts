@@ -1,9 +1,8 @@
-import { get } from "http";
-import { mutation, query } from "./_generated/server";
 import { ConvexError, v } from "convex/values";
 import { getUserbyTokenIdentifier } from "./_utils";
+import { mutation } from "./_generated/server";
 
-const newMessage = mutation({
+export const newMessage = mutation({
   args: {
     conversationId: v.id("conversations"),
     content: v.string(),

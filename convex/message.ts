@@ -1,13 +1,40 @@
-import { query } from "./_generated/server";
+import { get } from "http";
+import { mutation, query } from "./_generated/server";
+import { ConvexError, v } from "convex/values";
+import { getUserbyTokenIdentifier } from "./_utils";
 
-export const getForCurrentUser = query({
-  args: {},
-  handler: async (ctx) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (identity === null) {
-      throw new Error("Not authenticated");
-    }
-    
-    console.log("Fetching messages for user:", identity);
+const newMessage = mutation({
+  args: {
+    conversationId: v.id("conversations"),
+    content: v.string(),
   },
-});
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      throw new ConvexError("Not authenticated");
+    }
+
+    const user = await getUserbyTokenIdentifier({
+      ctx,
+      tokenIdentifier: identity.subject,
+    })
+
+    if (!user) {
+      throw new ConvexError("User not found");
+    }
+
+    const message = {
+      conversationId: args.conversationId,
+      senderId: user._id,
+      content: args.content,
+      timestamp: Date.now(),
+    };
+
+    const messageId = await ctx.db.insert("messages", message);
+    
+    // Update the last message in the conversation
+    await ctx.db.patch(args.conversationId, { lastMessageId: messageId });
+
+    return message;
+  },
+})

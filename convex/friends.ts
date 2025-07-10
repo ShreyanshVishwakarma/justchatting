@@ -37,13 +37,14 @@ export const get = query({
         if (!friend) {
           throw new Error("Friend not found");
         }
+        const conversation = await ctx.db.get(friendship.conversationId);
         return {
-          ...friend,
+          ...conversation,
           conversationId: friendship.conversationId,
+          ...friend,
         };
       })
     );
-
     return friends;
   },
 });

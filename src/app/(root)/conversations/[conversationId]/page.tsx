@@ -10,6 +10,7 @@ import { api } from '../../../../../convex/_generated/api'
 import { Id } from '../../../../../convex/_generated/dataModel'
 import { cn } from '@/lib/utils'
 import { useRouter } from 'next/navigation'
+import MessageContextMenu from './_components/messageContextMenu'
 
 
 export default function ConversationPage({ params} : {
@@ -134,6 +135,7 @@ export default function ConversationPage({ params} : {
               )}
               
               {/* Message bubble */}
+              <MessageContextMenu>
               <div className={cn("flex flex-col space-y-1", {
                 "items-end": isMe,
                 "items-start": !isMe
@@ -148,6 +150,7 @@ export default function ConversationPage({ params} : {
                   {formatTime(message._creationTime)}
                 </span>
               </div>
+              </MessageContextMenu>
             </div>
           );
         })}

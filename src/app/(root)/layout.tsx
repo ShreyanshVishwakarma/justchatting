@@ -19,13 +19,13 @@ import { cn } from "@/lib/utils";
 
 // Compact logo component for sidebar
 const CompactLogo = () => (
-  <div className="flex flex-col items-center justify-center p-3 mb-6">
-    <div className="relative bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 p-3 rounded-2xl shadow-lg transition-all duration-300 hover:shadow-2xl hover:shadow-purple-500/30 hover:scale-110 group">
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-      <MessageSquare className="h-7 w-7 text-white relative z-10" />
-      <div className="absolute -inset-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-2xl opacity-20 group-hover:opacity-40 blur transition-all duration-300"></div>
+  <div className="flex flex-col items-center justify-center p-2 mb-4">
+    <div className="relative w-12 h-12 bg-gradient-to-br from-violet-500 via-purple-500 to-indigo-500 rounded-2xl flex items-center justify-center shadow-lg transition-all duration-200 hover:scale-105 hover:shadow-xl hover:shadow-purple-500/25 group">
+      <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
+      <MessageSquare className="h-6 w-6 text-white relative z-10" />
+      <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-emerald-400 rounded-full border-2 border-background shadow-sm"></div>
     </div>
-    <span className="text-[11px] font-semibold text-foreground/90 mt-2 text-center hidden md:block tracking-wide">JustChat</span>
+    <span className="text-[10px] font-medium text-muted-foreground mt-1.5 text-center hidden md:block">JustChat</span>
   </div>
 );
 

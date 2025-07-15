@@ -20,6 +20,15 @@ const withPWA = require("next-pwa")({
 });
 
 const nextConfig: NextConfig = {
+  async redirects() {
+    return [
+      {
+        source: '/',
+        destination: '/conversations',
+        permanent: true, 
+      },
+    ];
+  },
 };
 
 export default withPWA(nextConfig);

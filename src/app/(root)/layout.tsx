@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React from "react";
+import { Authenticated , Unauthenticated } from "convex/react";
 import { UserButton, useAuth } from "@clerk/nextjs";
 import { Card } from "@/components/ui/card";
 import {
@@ -16,6 +17,7 @@ import Link from "next/link";
 import { ModeToggle } from "@/components/mode-toggle";
 import { useConversation } from "@/hooks/useConversation";
 import { cn } from "@/lib/utils";
+import { RedirectToHome } from "@/components/shared/RedirectTohome";
 
 // Compact logo component for sidebar
 const CompactLogo = () => (
@@ -31,21 +33,7 @@ const CompactLogo = () => (
 
 const RootLayout = ({ children }: { children: React.ReactNode }) => {
   const pathname = usePathname();
-  const router = useRouter();
-  const { isSignedIn, isLoaded } = useAuth();
   const { isActive } = useConversation();
-  
-  // Redirect to home if user is not authenticated
-  useEffect(() => {
-    if (isLoaded && !isSignedIn) {
-      router.push("/");
-    }
-  }, [isSignedIn, isLoaded, router]);
-
-  // Show loading or nothing while checking auth
-  if (!isLoaded || !isSignedIn) {
-    return null;
-  }
   
   // Define navigation items directly here
   const navItems = [
@@ -64,6 +52,11 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => {
   ];
 
   return (
+    <>
+    <Unauthenticated>
+      <RedirectToHome />
+    </Unauthenticated>
+    <Authenticated>
     <TooltipProvider>
       <div className="flex h-screen w-full flex-col md:flex-row bg-gradient-to-br from-background via-background to-muted/20">
         {/* Sidebar Navigation */}
@@ -175,6 +168,8 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => {
         </div>
       </div>
     </TooltipProvider>
+    </Authenticated>
+    </>
   );
 };
 

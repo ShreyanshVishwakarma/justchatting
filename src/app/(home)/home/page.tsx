@@ -2,7 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { AuthLoading, Unauthenticated, Authenticated } from "convex/react";
-import Loading from '../loading';
+import Loading from '../../loading';
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Shield, Lock, MessageCircle, Users, Zap, Eye, Globe, Heart, CheckCircle, ArrowRight, Fingerprint } from "lucide-react";

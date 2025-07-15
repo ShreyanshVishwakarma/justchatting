@@ -12,7 +12,7 @@ interface ConversationsLayoutProps {
 const ConversationsLayout = ({ children }: ConversationsLayoutProps) => {
   const { isActive } = useConversation()
   return (
-    <div className="h-full flex gap-2 p-2">
+    <div className="h-full flex gap-2 p-2 select-none">
       {/* Conversation list sidebar */}
       <div className={cn("w-full flex-1 md:w-72 flex flex-col md:flex-none bg-background/50 md:bg-background border-r border-border/50", {
         'hidden md:flex': isActive,
@@ -34,7 +34,7 @@ const ConversationsLayout = ({ children }: ConversationsLayoutProps) => {
       <div className={cn("hidden md:flex flex-1 h-full overflow-hidden", {
         'flex': isActive,
       })}>
-        <div className="w-full h-full overflow-hidden bg-background border border-border/50 rounded-lg">
+        <div className="w-full h-full overflow-hidden bg-background border border-border/50 rounded-lg select-none">
           {children}
         </div>
       </div>

@@ -6,6 +6,7 @@ import { ClerkProvider } from "@clerk/nextjs";
 import "./globals.css";
 import { ThemeProvider } from "@/providers/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
+import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -21,6 +22,22 @@ export const metadata: Metadata = {
   title: "Just Chatting",
   keywords: ["just chatting", "chat", "next.js", "react"],
   description: "A modern chat application built with Next.js and Clerk",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "JustChatting",
+  },
+  other: {
+    "mobile-web-app-capable": "yes",
+    "apple-mobile-web-app-capable": "yes",
+    "apple-mobile-web-app-status-bar-style": "black-translucent",
+    "apple-mobile-web-app-title": "JustChatting",
+    "application-name": "JustChatting",
+    "msapplication-TileColor": "#000000",
+    "msapplication-tap-highlight": "no",
+    "theme-color": "#000000",
+  },
 };
 
 export default function RootLayout({
@@ -43,6 +60,7 @@ export default function RootLayout({
             >
              {children}
              <Toaster />
+             <PWAInstallPrompt />
             </ThemeProvider>
             </body>
          </html>

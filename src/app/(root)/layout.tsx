@@ -53,83 +53,108 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => {
     <TooltipProvider>
       <div className="flex h-screen w-full flex-col md:flex-row bg-gradient-to-br from-background via-background to-muted/20">
         {/* Sidebar Navigation */}
-        <aside className={cn("flex w-full flex-row justify-around p-2 md:w-20 md:flex-col md:justify-start md:gap-2 order-last md:order-first", {
+        <aside className={cn("flex w-full flex-row justify-around p-2 md:w-16 md:flex-col md:justify-start md:gap-2 order-last md:order-first", {
           "hidden md:flex": isActive
         })}>
-          <Card className="fixed bottom-0 left-0 z-10 flex w-full flex-row justify-around rounded-t-2xl border-t bg-background/95 backdrop-blur-xl supports-[backdrop-filter]:bg-background/90 p-3 md:py-6 md:px-2 md:static md:items-center md:h-full md:flex-col md:rounded-2xl md:border md:shadow-xl md:shadow-black/5">
-            {/* Logo - only visible on desktop */}
-            <div className="hidden md:block">
-              <CompactLogo />
+          {/* Mobile Navigation Bar */}
+          <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-md border-t border-border/20">
+            <div className="flex items-center justify-around px-4 py-2">
+              {navItems.map((item) => (
+                <Link key={item.label} href={item.href}>
+                  <div className="flex flex-col items-center gap-1 p-2 min-w-[60px]">
+                    <div className={cn(
+                      "flex items-center justify-center w-10 h-10 rounded-xl transition-all duration-200",
+                      item.active 
+                        ? "bg-primary text-primary-foreground" 
+                        : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                    )}>
+                      <item.icon className="w-5 h-5" />
+                    </div>
+                    <span className={cn(
+                      "text-xs font-medium transition-colors duration-200",
+                      item.active ? "text-primary" : "text-muted-foreground"
+                    )}>
+                      {item.label}
+                    </span>
+                  </div>
+                </Link>
+              ))}
+              
+              {/* Mobile User Button */}
+              <div className="flex flex-col items-center gap-1 p-2 min-w-[60px]">
+                <div className="flex items-center justify-center w-10 h-10 rounded-xl hover:bg-muted/50 transition-colors duration-200">
+                  <UserButton />
+                </div>
+                <span className="text-xs font-medium text-muted-foreground">Profile</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Desktop Navigation Sidebar */}
+          <div className="hidden md:flex md:flex-col md:h-full md:w-16 md:py-4 bg-background/60 backdrop-blur-sm border-r border-border/20">
+            {/* Logo */}
+            <div className="flex flex-col items-center mb-6">
+              <div className="w-10 h-10 bg-gradient-to-br from-primary to-primary/80 rounded-xl flex items-center justify-center transition-transform duration-200 hover:scale-105">
+                <MessageSquare className="w-5 h-5 text-primary-foreground" />
+              </div>
+              <span className="text-[10px] font-medium text-muted-foreground mt-1">Chat</span>
             </div>
             
             {/* Navigation Items */}
-            <div className="flex flex-row md:flex-col gap-2 md:gap-3">
+            <div className="flex flex-col gap-2 flex-1">
               {navItems.map((item) => (
-                <React.Fragment key={item.label}>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        asChild
-                        variant={item.active ? "default" : "ghost"}
-                        size="icon"
-                        className={cn(
-                          "h-12 w-12 md:h-11 md:w-11 rounded-xl transition-all duration-200 hover:scale-105 active:scale-95",
-                          item.active 
-                            ? "bg-gradient-to-r from-primary/90 to-primary shadow-lg shadow-primary/25 text-primary-foreground" 
-                            : "hover:bg-muted/80 hover:shadow-md"
+                <Tooltip key={item.label}>
+                  <TooltipTrigger asChild>
+                    <Link href={item.href}>
+                      <div className={cn(
+                        "relative flex items-center justify-center w-12 h-12 mx-auto rounded-xl transition-all duration-200",
+                        item.active 
+                          ? "bg-primary text-primary-foreground shadow-sm" 
+                          : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                      )}>
+                        {item.active && (
+                          <div className="absolute -left-2 top-1/2 -translate-y-1/2 w-1 h-6 bg-primary rounded-r-sm" />
                         )}
-                      >
-                        <Link href={item.href}>
-                          <item.icon className="h-5 w-5" />
-                        </Link>
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent side="right" sideOffset={8} className="font-medium">
-                      <p>{item.label}</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </React.Fragment>
+                        <item.icon className="w-5 h-5" />
+                      </div>
+                    </Link>
+                  </TooltipTrigger>
+                  <TooltipContent side="right" sideOffset={8}>
+                    <p>{item.label}</p>
+                  </TooltipContent>
+                </Tooltip>
               ))}
             </div>
 
             {/* Desktop Bottom Section */}
-            <div className="mt-auto hidden md:flex md:flex-col md:justify-center md:items-center md:gap-3 md:pt-4">
-              <div className="w-full h-px bg-gradient-to-r from-transparent via-border to-transparent"></div>
-              
+            <div className="flex flex-col items-center gap-2 pt-4 border-t border-border/20">
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <div className="p-2 rounded-xl hover:bg-muted/80 transition-colors duration-200">
+                  <div className="flex items-center justify-center w-12 h-12 rounded-xl hover:bg-muted/50 transition-colors duration-200">
                     <ModeToggle />
                   </div>
                 </TooltipTrigger>
-                <TooltipContent side="right" sideOffset={8} className="font-medium">
+                <TooltipContent side="right" sideOffset={8}>
                   <p>Theme</p>
                 </TooltipContent>
               </Tooltip>
               
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <div className="p-2 rounded-xl hover:bg-muted/80 transition-colors duration-200">
+                  <div className="flex items-center justify-center w-12 h-12 rounded-xl hover:bg-muted/50 transition-colors duration-200">
                     <UserButton />
                   </div>
                 </TooltipTrigger>
-                <TooltipContent side="right" sideOffset={8} className="font-medium">
+                <TooltipContent side="right" sideOffset={8}>
                   <p>Profile</p>
                 </TooltipContent>
               </Tooltip>
             </div>
-
-            {/* Mobile User Section */}
-            <div className="flex items-center gap-2 md:hidden">
-              <div className="p-2 rounded-xl">
-                <UserButton />
-              </div>
-            </div>
-          </Card>
+          </div>
         </aside>
 
         {/* Main Content */}
-        <div className="flex-1 overflow-y-auto md:pb-0 relative">
+        <div className="flex-1 overflow-y-auto pb-0 md:pb-0">
           <div className="h-full w-full">
             {children}
           </div>

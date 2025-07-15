@@ -59,10 +59,20 @@ const MessageList = ({
   }
 
   return (
-    <div className="flex-1 overflow-y-auto p-4 space-y-4">
+    <div className="flex-1 overflow-y-auto p-4 space-y-2">
       {messages?.toReversed().map((message, index) => {
+        const reversedMessages = messages.toReversed();
         const isMe = message.senderId === me?._id;
-        const showAvatar = !isMe && (index === messages.length - 1 || messages[index + 1]?.senderId !== message.senderId);
+        const showAvatar = !isMe && (index === messages.length - 1 || reversedMessages[index + 1]?.senderId !== message.senderId);
+        
+        // Check if we should show timestamp
+        // Show timestamp only for the last message in a sequence from the same sender
+        const nextMessage = reversedMessages[index + 1]; // Next message in display order (chronologically older)
+        const TIME_THRESHOLD = 5 * 60 * 1000; // 5 minutes in milliseconds
+        
+        const showTimestamp = !nextMessage || 
+          nextMessage.senderId !== message.senderId || 
+          (message._creationTime - nextMessage._creationTime) > TIME_THRESHOLD;
 
         return (
           <div key={message._id} className={cn("flex gap-2 max-w-[85%] sm:max-w-[70%]", {
@@ -80,9 +90,10 @@ const MessageList = ({
               </Avatar>
             )}
             
-            <div className={cn("flex flex-col space-y-1", {
+            <div className={cn("flex flex-col", {
               "items-end": isMe,
-              "items-start": !isMe
+              "items-start": !isMe,
+              "space-y-0.5": showTimestamp
             })}>
               <MessageContextMenu 
                 onDelete={() => onDeleteMessage(message._id)}
@@ -95,9 +106,11 @@ const MessageList = ({
                   <p className="text-sm leading-relaxed">{message.content}</p>
                 </div>
               </MessageContextMenu>
-              <span className="text-xs text-muted-foreground px-2">
-                {formatTime(message._creationTime)}
-              </span>
+              {showTimestamp && (
+                <span className="text-xs text-muted-foreground px-2">
+                  {formatTime(message._creationTime)}
+                </span>
+              )}
             </div>
           </div>
         );

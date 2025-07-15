@@ -48,7 +48,7 @@ export const AddFriend= () => {
             <DialogTrigger asChild>
                 <UserPlus className="cursor-pointer text-muted-foreground hover:text-primary transition-colors" />
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent className="sm:max-w-md max-w-[90vw] top-[10%] md:top-[50%] translate-y-0 md:-translate-y-1/2">
                 <DialogHeader>
                     <DialogTitle>Add a Friend</DialogTitle>
                     <DialogDescription>

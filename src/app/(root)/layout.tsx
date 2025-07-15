@@ -1,7 +1,7 @@
 "use client";
 
-import React from "react";
-import { UserButton } from "@clerk/nextjs";
+import React, { useEffect } from "react";
+import { UserButton, useAuth } from "@clerk/nextjs";
 import { Card } from "@/components/ui/card";
 import {
   Tooltip,
@@ -10,7 +10,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { MessageSquare, Users } from "lucide-react";
 import Link from "next/link"; 
 import { ModeToggle } from "@/components/mode-toggle";
@@ -31,7 +31,21 @@ const CompactLogo = () => (
 
 const RootLayout = ({ children }: { children: React.ReactNode }) => {
   const pathname = usePathname();
+  const router = useRouter();
+  const { isSignedIn, isLoaded } = useAuth();
   const { isActive } = useConversation();
+  
+  // Redirect to home if user is not authenticated
+  useEffect(() => {
+    if (isLoaded && !isSignedIn) {
+      router.push("/");
+    }
+  }, [isSignedIn, isLoaded, router]);
+
+  // Show loading or nothing while checking auth
+  if (!isLoaded || !isSignedIn) {
+    return null;
+  }
   
   // Define navigation items directly here
   const navItems = [

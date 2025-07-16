@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Shield, Lock, MessageCircle, Users, Zap, Eye, Globe, Heart, CheckCircle, ArrowRight, Fingerprint } from "lucide-react";
 import { LucideIcon } from "lucide-react";
+import { JustChattingLogo } from "@/components/JustChattingLogo";
 
 interface FeatureCardProps {
   icon: LucideIcon;
@@ -240,6 +241,14 @@ export default function Home() {
                 <div className="relative">
                   <div className="absolute -top-16 -z-10 left-1/2 transform -translate-x-1/2 w-64 h-64 bg-primary/10 rounded-full blur-3xl"></div>
                   <div className="relative">
+                    {/* Logo */}
+                    <div className="mb-8 flex justify-center">
+                      <div className="relative">
+                        <JustChattingLogo size={120} className="drop-shadow-xl" />
+                        <div className="absolute -inset-4 bg-gradient-to-r from-primary/20 via-purple-500/20 to-pink-500/20 rounded-full blur-xl animate-pulse-slow"></div>
+                      </div>
+                    </div>
+                    
                     <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight">
                       Welcome to{" "}
                     </h1>

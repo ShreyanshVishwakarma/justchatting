@@ -25,7 +25,7 @@ const nextConfig: NextConfig = {
       {
         source: '/',
         destination: '/conversations',
-        permanent: true, 
+        permanent: false, 
       },
     ];
   },

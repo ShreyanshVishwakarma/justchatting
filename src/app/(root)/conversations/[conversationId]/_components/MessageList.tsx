@@ -32,7 +32,6 @@ const MessageList = ({
   onCopyMessage 
 }: MessageListProps) => {
     const me = useQuery(api.user.getMe);
-
     const formatTime = (timestamp: number) => {
         return new Date(timestamp).toLocaleTimeString([], { 
           hour: '2-digit', 
@@ -60,6 +59,18 @@ const MessageList = ({
 
   return (
     <div className="flex-1 overflow-y-auto p-4 space-y-2">
+      {status === "CanLoadMore" && (
+        <div className="flex justify-center py-4">
+          <Button
+            variant="outline"
+            onClick={() => loadMore(10)}
+            size="sm"
+          >
+            Load more messages
+          </Button>
+        </div>
+      )}
+      
       {messages?.toReversed().map((message, index) => {
         const reversedMessages = messages.toReversed();
         const isMe = message.senderId === me?._id;
@@ -115,18 +126,6 @@ const MessageList = ({
           </div>
         );
       })}
-      
-      {status === "CanLoadMore" && (
-        <div className="flex justify-center py-4">
-          <Button
-            variant="outline"
-            onClick={() => loadMore(10)}
-            size="sm"
-          >
-            Load more messages
-          </Button>
-        </div>
-      )}
       
       <div ref={messagesEndRef} />
     </div>

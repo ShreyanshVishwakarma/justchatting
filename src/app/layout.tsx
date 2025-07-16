@@ -19,10 +19,15 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Just Chatting",
+  title: "JustChatting",
   keywords: ["just chatting", "chat", "next.js", "react"],
-  description: "A modern chat application built with Next.js and Clerk",
+  description: "A modern real-time chat application with friends and conversations",
   manifest: "/manifest.json",
+  icons: {
+    icon: "/icons/icon-192x192.png",
+    shortcut: "/icons/icon-192x192.png",
+    apple: "/icons/icon-192x192.png",
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",

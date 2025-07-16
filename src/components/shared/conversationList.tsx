@@ -5,8 +5,7 @@ import { api } from '../../../convex/_generated/api';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 
 const ConversationList = () => {
-  const { isAuthenticated } = useConvexAuth();
-  const friends = useQuery(api.friends.get, !isAuthenticated ? "skip" : undefined);
+  const friends = useQuery(api.friends.get) ;
 
   if (friends === undefined) {
     return (
@@ -24,6 +23,7 @@ const ConversationList = () => {
     );
   }
 
+  friends.sort((a, b) => b._creationTime - a._creationTime)
 
   return (
     <div className="space-y-1">
@@ -47,7 +47,7 @@ const ConversationList = () => {
                   {friend.username || "Unnamed Conversation"}
                 </p>
                 <p className="text-xs text-muted-foreground truncate group-hover:text-accent-foreground/70">
-                  {friend.email ? "Last message" : "No messages yet"}
+                  {friend.lastmessage ? friend.lastmessage: "No messages yet"}
                 </p>
               </div>
             </div>

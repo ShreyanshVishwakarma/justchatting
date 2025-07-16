@@ -1,0 +1,48 @@
+import React from 'react';
+
+interface JustChattingLogoProps {
+  size?: number;
+  className?: string;
+}
+
+export const JustChattingLogo: React.FC<JustChattingLogoProps> = ({ 
+  size = 24, 
+  className = "" 
+}) => {
+  return (
+    <svg 
+      width={size} 
+      height={size} 
+      viewBox="0 0 512 512" 
+      className={className}
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <defs>
+        <linearGradient id={`grad1-${size}`} x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" style={{stopColor: '#3b82f6', stopOpacity: 1}} />
+          <stop offset="100%" style={{stopColor: '#1e40af', stopOpacity: 1}} />
+        </linearGradient>
+      </defs>
+      
+      {/* Background */}
+      <rect width="512" height="512" rx="64" fill={`url(#grad1-${size})`}/>
+      
+      {/* Chat bubble 1 */}
+      <rect x="80" y="120" width="280" height="80" rx="40" fill="white" opacity="0.9"/>
+      <circle cx="120" cy="160" r="8" fill="#3b82f6"/>
+      <circle cx="160" cy="160" r="8" fill="#3b82f6"/>
+      <circle cx="200" cy="160" r="8" fill="#3b82f6"/>
+      
+      {/* Chat bubble 2 */}
+      <rect x="152" y="240" width="280" height="80" rx="40" fill="white" opacity="0.7"/>
+      <rect x="380" y="280" width="20" height="20" rx="10" fill="white"/>
+      <rect x="340" y="280" width="20" height="20" rx="10" fill="white"/>
+      <rect x="300" y="280" width="20" height="20" rx="10" fill="white"/>
+      
+      {/* Message icon */}
+      <path d="M256 360 L200 400 L200 380 L120 380 C110 380 100 370 100 360 L100 340 C100 330 110 320 120 320 L392 320 C402 320 412 330 412 340 L412 360 C412 370 402 380 392 380 L276 380 Z" fill="white"/>
+    </svg>
+  );
+};
+
+export default JustChattingLogo;

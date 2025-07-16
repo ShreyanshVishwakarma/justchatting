@@ -18,13 +18,13 @@ import { ModeToggle } from "@/components/mode-toggle";
 import { useConversation } from "@/hooks/useConversation";
 import { cn } from "@/lib/utils";
 import { RedirectToHome } from "@/components/shared/RedirectTohome";
+import { JustChattingLogo } from "@/components/JustChattingLogo";
 
 // Compact logo component for sidebar
 const CompactLogo = () => (
   <div className="flex flex-col items-center justify-center p-2 mb-4">
-    <div className="relative w-12 h-12 bg-gradient-to-br from-violet-500 via-purple-500 to-indigo-500 rounded-2xl flex items-center justify-center shadow-lg transition-all duration-200 hover:scale-105 hover:shadow-xl hover:shadow-purple-500/25 group">
-      <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
-      <MessageSquare className="h-6 w-6 text-white relative z-10" />
+    <div className="relative w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg transition-all duration-200 hover:scale-105 hover:shadow-xl hover:shadow-blue-500/25 group">
+      <JustChattingLogo size={48} className="rounded-2xl" />
       <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-emerald-400 rounded-full border-2 border-background shadow-sm"></div>
     </div>
     <span className="text-[10px] font-medium text-muted-foreground mt-1.5 text-center hidden md:block">JustChat</span>
@@ -101,10 +101,10 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => {
           <div className="hidden md:flex md:flex-col md:h-full md:w-16 md:py-4 bg-background/60 backdrop-blur-sm border-r border-border/20">
             {/* Logo */}
             <div className="flex flex-col items-center mb-6">
-              <div className="w-10 h-10 bg-gradient-to-br from-primary to-primary/80 rounded-xl flex items-center justify-center transition-transform duration-200 hover:scale-105">
-                <MessageSquare className="w-5 h-5 text-primary-foreground" />
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center transition-transform duration-200 hover:scale-105">
+                <JustChattingLogo size={40} className="rounded-xl" />
               </div>
-              <span className="text-[10px] font-medium text-muted-foreground mt-1">Chat</span>
+              <span className="text-[10px] font-medium text-muted-foreground mt-1">JustChat</span>
             </div>
             
             {/* Navigation Items */}

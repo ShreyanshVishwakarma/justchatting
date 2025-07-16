@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { X, Download } from "lucide-react";
+import { X } from "lucide-react";
+import { JustChattingLogo } from "@/components/JustChattingLogo";
 
 interface BeforeInstallPromptEvent extends Event {
   readonly platforms: string[];
@@ -90,7 +91,7 @@ export function PWAInstallPrompt() {
       <div className="bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border rounded-lg p-4 shadow-lg">
         <div className="flex items-start gap-3">
           <div className="bg-primary/10 p-2 rounded-lg">
-            <Download className="h-5 w-5 text-primary" />
+            <JustChattingLogo size={20} />
           </div>
           <div className="flex-1">
             <h3 className="font-semibold text-sm">Install JustChatting</h3>

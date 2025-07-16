@@ -38,10 +38,20 @@ export const get = query({
           throw new Error("Friend not found");
         }
         const conversation = await ctx.db.get(friendship.conversationId);
+        let lastmessage = null;
+        if (conversation?.lastMessageId) {
+          lastmessage = await ctx.db.get(conversation.lastMessageId);
+        }
+
         return {
+          lastmessage : lastmessage ? lastmessage.content : undefined,
           ...conversation,
+          isGroup: conversation?.isGroup || false,
+          conversationImage: conversation?.imageURL || undefined,
+          conversationName : conversation?.name,
           conversationId: friendship.conversationId,
           ...friend,
+          _creationTime: lastmessage ? lastmessage._creationTime : friendship._creationTime,
         };
       })
     );

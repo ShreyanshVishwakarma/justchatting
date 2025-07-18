@@ -31,9 +31,13 @@ const ChatInput = ({
   // Auto-resize textarea
   useEffect(() => {
     if (textareaRef.current) {
-      textareaRef.current.style.height = "40px"
+      // Reset height to auto to get the correct scrollHeight
+      textareaRef.current.style.height = "auto"
+
+      // Calculate the new height based on content
       const scrollHeight = textareaRef.current.scrollHeight
       const newHeight = Math.min(Math.max(scrollHeight, 40), 120) // Min 40px, max 120px
+
       setTextareaHeight(newHeight)
       textareaRef.current.style.height = `${newHeight}px`
     }
@@ -57,6 +61,15 @@ const ChatInput = ({
     const value = e.target.value
     if (value.length <= maxLength) {
       setMessage(value)
+
+      // Force immediate height recalculation for better responsiveness
+      if (textareaRef.current) {
+        textareaRef.current.style.height = "auto"
+        const scrollHeight = textareaRef.current.scrollHeight
+        const newHeight = Math.min(Math.max(scrollHeight, 40), 120)
+        setTextareaHeight(newHeight)
+        textareaRef.current.style.height = `${newHeight}px`
+      }
     }
   }
 

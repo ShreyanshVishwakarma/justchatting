@@ -4,6 +4,8 @@ import React from 'react'
 import { cn } from "@/lib/utils"
 import { useConversation } from '@/hooks/useConversation'
 import ConversationList from "@/components/shared/conversationList"
+import { RedirectToHome } from "@/components/shared/RedirectTohome";
+import { Authenticated , Unauthenticated } from "convex/react";
 
 interface ConversationsLayoutProps {
   children: React.ReactNode;
@@ -12,6 +14,11 @@ interface ConversationsLayoutProps {
 const ConversationsLayout = ({ children }: ConversationsLayoutProps) => {
   const { isActive } = useConversation()
   return (
+    <>
+    <Unauthenticated>
+      <RedirectToHome />
+    </Unauthenticated>
+    <Authenticated>
     <div className="h-full flex gap-2 p-2 select-none">
       {/* Conversation list sidebar */}
       <div className={cn("w-full flex-1 md:w-72 flex flex-col md:flex-none bg-background/50 md:bg-background border-r border-border/50", {
@@ -39,6 +46,8 @@ const ConversationsLayout = ({ children }: ConversationsLayoutProps) => {
         </div>
       </div>
     </div>
+    </Authenticated>
+    </>
   )
 }
 

@@ -4,8 +4,9 @@ import { useEffect } from "react";
 export const RedirectToHome = () => {
   const router = useRouter();
     useEffect(() => {
-        router.push('/');
+        router.push('/home');
     }, [router]);
+
   return (
       <div className="flex items-center justify-center h-full">
         </div>

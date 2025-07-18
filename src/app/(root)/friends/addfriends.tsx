@@ -46,31 +46,44 @@ export const AddFriend= () => {
     return(
         <Dialog>
             <DialogTrigger asChild>
-                <UserPlus className="cursor-pointer text-muted-foreground hover:text-primary transition-colors" />
+                <div className="p-2 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground cursor-pointer transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl">
+                    <UserPlus className="w-5 h-5" />
+                </div>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-md max-w-[90vw] top-[10%] md:top-[50%] translate-y-0 md:-translate-y-1/2">
-                <DialogHeader>
-                    <DialogTitle>Add a Friend</DialogTitle>
-                    <DialogDescription>
-                        Send a friend request by entering their email address.
+            <DialogContent className="sm:max-w-md max-w-[90vw] bg-card/95 backdrop-blur-xl border border-border shadow-2xl rounded-2xl">
+                <DialogHeader className="space-y-2">
+                    <DialogTitle className="text-xl font-bold text-primary">
+                        Add a Friend
+                    </DialogTitle>
+                    <DialogDescription className="text-muted-foreground text-sm">
+                        Send a friend request by entering their email address and start connecting.
                     </DialogDescription>
                 </DialogHeader>
                 <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 mt-4">
                         <FormField
                             control={form.control}
                             name="email"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Email</FormLabel>
+                                    <FormLabel className="text-sm font-semibold">Email Address</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="friend@example.com" {...field} />
+                                        <Input 
+                                            placeholder="friend@example.com" 
+                                            {...field} 
+                                            className="h-10 bg-background border border-border rounded-lg shadow-lg focus:shadow-xl focus:border-primary transition-all duration-300"
+                                        />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
                             )}
                         />
-                        <Button type="submit" className="w-full">Send Request</Button>
+                        <Button 
+                            type="submit" 
+                            className="w-full h-10 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-300"
+                        >
+                            Send Friend Request
+                        </Button>
                     </form>
                 </Form>
             </DialogContent>

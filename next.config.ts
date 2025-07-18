@@ -20,6 +20,9 @@ const withPWA = require("next-pwa")({
 });
 
 const nextConfig: NextConfig = {
+  // Enable standalone output for Docker optimization
+  output: 'standalone',
+  
   async redirects() {
     return [
       {

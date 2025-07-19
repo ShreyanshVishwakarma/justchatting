@@ -63,13 +63,17 @@ export const deleteMessage = mutation({
       throw new ConvexError("Message not found or you do not have permission to delete it");
     }
 
-    await ctx.db.delete(args.messageId);
+    await ctx.db.patch(args.messageId, {
+      idDeleted: true, 
+      content: "", 
+      isEdited: true, 
+    });
 
     // Optionally, update the conversation's last message
-    const conversation = await ctx.db.get(message.conversationId);
-    if (conversation?.lastMessageId === args.messageId) {
-      await ctx.db.patch(message.conversationId, { lastMessageId: undefined });
-    }
+    // const conversation = await ctx.db.get(message.conversationId);
+    // if (conversation?.lastMessageId === args.messageId) {
+    //   await ctx.db.patch(message.conversationId, { lastMessageId: undefined });
+    // }
 
     return true;
   },

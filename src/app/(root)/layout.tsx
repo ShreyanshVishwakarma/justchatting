@@ -65,7 +65,7 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => {
         })}>
           {/* Mobile Navigation Bar */}
           <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-md border-t border-border/20">
-            <div className="flex items-center justify-around px-4 py-2">
+            <div className="flex items-center justify-around">
               {navItems.map((item) => (
                 <Link key={item.label} href={item.href}>
                   <div className="flex flex-col items-center gap-1 p-2 min-w-[60px]">

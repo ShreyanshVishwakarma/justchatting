@@ -19,7 +19,7 @@ const ConversationsLayout = ({ children }: ConversationsLayoutProps) => {
       <RedirectToHome />
     </Unauthenticated>
     <Authenticated>
-    <div className="h-full flex gap-2 p-2 select-none">
+    <div className="h-full flex gap-2 p-0 md:p-2 select-none">
       {/* Conversation list sidebar */}
       <div className={cn("w-full flex-1 md:w-72 flex flex-col md:flex-none bg-background/50 md:bg-background border-r border-border/50", {
         'hidden md:flex': isActive,

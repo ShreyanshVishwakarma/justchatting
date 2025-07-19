@@ -34,10 +34,9 @@ export const newMessage = mutation({
     // Update the last message in the conversation
     await ctx.db.patch(args.conversationId, { lastMessageId: messageId });
 
-    return message;
+    return await ctx.db.get(messageId);
   },
 })
-
 
 export const deleteMessage = mutation({
   args: {

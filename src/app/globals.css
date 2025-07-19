@@ -82,7 +82,7 @@
   --card-foreground: oklch(0.985 0 0);
   --popover: oklch(0.21 0.006 285.885);
   --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(31.519% 0.07705 142.158);
+  --primary: oklch(58.486% 0.22083 27.537);
   --primary-foreground: oklch(0.969 0.015 12.422);
   --secondary: oklch(0.274 0.006 286.033);
   --secondary-foreground: oklch(0.985 0 0);
@@ -271,6 +271,7 @@
     transform: scaleX(1);
     transform-origin: bottom left;
   }
+
 }
 
 /* PWA Specific Styles */

@@ -8,12 +8,11 @@ import MessageContextMenu from "./messageContextMenu";
 import { useQuery } from "convex/react";
 import { api } from "../../../../../../convex/_generated/api";
 import { Send } from "lucide-react";
+// ...existing code...
 
-// Define message type without conversationId since it's stripped in the API
-type MessageWithoutConversationId = Omit<Doc<"messages">, "conversationId">;
 
 type MessageListProps = {
-  messages: MessageWithoutConversationId[] | undefined;
+  messages: any[] | undefined; // Use 'any' to accommodate the live query type
   status: string;
   loadMore: (numItems: number) => void;
   messagesEndRef: React.RefObject<HTMLDivElement | null>;
@@ -32,12 +31,16 @@ const MessageList = ({
   onCopyMessage 
 }: MessageListProps) => {
     const me = useQuery(api.user.getMe);
-    const formatTime = (timestamp: number) => {
-        return new Date(timestamp).toLocaleTimeString([], { 
-          hour: '2-digit', 
-          minute: '2-digit' 
-        });
-      }
+// ...existing code...
+    
+    // Handles both _creationTime and timestamp fields, and avoids NaN/Invalid Date
+    const formatTime = (msg: any) => {
+      const raw = msg._creationTime ?? msg.timestamp;
+      if (!raw || isNaN(Number(raw))) return '';
+      const date = new Date(Number(raw));
+      if (isNaN(date.getTime())) return '';
+      return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    }
 
   if (!messages || messages.length === 0) {
     return (
@@ -71,25 +74,31 @@ const MessageList = ({
         </div>
       )}
       
-      {messages?.toReversed().map((message, index) => {
-        const reversedMessages = messages.toReversed();
+      {messages?.map((message, index) => {
         const isMe = message.senderId === me?._id;
-        const showAvatar = !isMe && (index === messages.length - 1 || reversedMessages[index + 1]?.senderId !== message.senderId);
+        const showAvatar = !isMe && (index === 0 || messages[index - 1]?.senderId !== message.senderId);
+        const isLatestMessage = index === messages.length - 1; // Last in array means latest chronologically
         
         // Check if we should show timestamp
         // Show timestamp only for the last message in a sequence from the same sender
-        const nextMessage = reversedMessages[index + 1]; // Next message in display order (chronologically older)
+        const nextMessage = messages[index + 1]; // Next message in chronological order
         const TIME_THRESHOLD = 5 * 60 * 1000; // 5 minutes in milliseconds
         
         const showTimestamp = !nextMessage || 
           nextMessage.senderId !== message.senderId || 
-          (message._creationTime - nextMessage._creationTime) > TIME_THRESHOLD;
+          (nextMessage._creationTime - message._creationTime) > TIME_THRESHOLD;
 
         return (
-          <div key={message._id} className={cn("flex gap-2 max-w-[85%] sm:max-w-[70%]", {
-            "ml-auto flex-row-reverse": isMe,
-            "mr-auto": !isMe
-          })}>
+          <div 
+            key={message.id}
+            className={cn(
+              "flex gap-2 max-w-[85%] sm:max-w-[70%]",
+              {
+                "ml-auto flex-row-reverse": isMe,
+                "mr-auto": !isMe
+              }
+            )}
+          >
             {!isMe && (
               <Avatar className={cn("h-8 w-8 mt-1", {
                 "invisible": !showAvatar
@@ -107,19 +116,23 @@ const MessageList = ({
               "space-y-0.5": showTimestamp
             })}>
               <MessageContextMenu 
-                onDelete={() => onDeleteMessage(message._id)}
+                onDelete={() => onDeleteMessage(message._id as Id<"messages">)}
                 onCopy={() => onCopyMessage(message.content)}
               >
                 <div className={cn("px-4 py-2 rounded-2xl max-w-full break-words", {
-                  "bg-primary text-primary-foreground rounded-br-md": isMe,
+                  "bg-blue-950 text-primary-foreground rounded-br-md": isMe,
                   "bg-muted rounded-bl-md": !isMe
                 })}>
-                  <p className="text-sm leading-relaxed">{message.content}</p>
+                  {message.isDeleted ? (
+                    <span className="text-gray-500 ">[this message has been deleted]</span>
+                  ) : (
+                    <p className="text-sm leading-relaxed">{message.content}</p>
+                  )}
                 </div>
               </MessageContextMenu>
               {showTimestamp && (
                 <span className="text-xs text-muted-foreground px-2">
-                  {formatTime(message._creationTime)}
+                  {formatTime(message)}
                 </span>
               )}
             </div>

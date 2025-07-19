@@ -54,6 +54,7 @@ export default function ConversationPage({ params} : {
           content: msg.content,
           isEdited: msg.isEdited || false,
           timestamp: msg._creationTime, 
+          isDeleted: msg.isDeleted || false,
           creationTime: msg._creationTime,
           status: 'sent' as const
         }));
@@ -100,11 +101,13 @@ export default function ConversationPage({ params} : {
           conversationId: conversationId as string,
           senderId: serverMessage.senderId as string,
           content: serverMessage.content,
+          isDeleted: serverMessage.isDeleted || false,
           isEdited: serverMessage.isEdited || false,
           timestamp: serverMessage._creationTime,
           creationTime: serverMessage._creationTime,
           status: 'sent'
         });
+        await db.messages.delete(tempId);
         // await db.messages.put({
         //   id: serverMessage._id as string, 
         //   _id: serverMessage._id as string ,
@@ -158,47 +161,20 @@ export default function ConversationPage({ params} : {
       });
   }
 
-  // // Combine server and local messages for display
-  // const displayMessages = React.useMemo(() => {
-  //   const messageMap = new Map();
-    
-  //   // Add local messages first (includes pending/error states)
-  //   messagesLocal?.forEach(msg => {
-  //     messageMap.set(msg.id, msg);
+  // Filter out temp messages that have a matching real message
+  // const filteredMessages = React.useMemo(() => {
+  //   const realIds = new Set(messagesLocal.filter(m => !m.id.startsWith('temp-')).map(m => m._id));
+  //   return messagesLocal.filter(m => {
+  //     if (m.id.startsWith('temp-') && realIds.has(m._id)) return false;
+  //     return true;
   //   });
-    
-  //   // Add/override with server messages (more authoritative)
-  //   messages?.forEach(msg => {
-  //     messageMap.set(msg._id, {
-  //       id: msg._id,
-  //       _id: msg._id,
-  //       conversationId: conversationId as string,
-  //       senderId: msg.senderId as string,
-  //       content: msg.content,
-  //       isEdited: msg.isEdited || false,
-  //       timestamp: msg._creationTime,
-  //       creationTime: msg._creationTime,
-  //       status: 'sent' as const
-  //     });
-  //   });
-    
-  //   return Array.from(messageMap.values())
-  //     .sort((a, b) => a.timestamp - b.timestamp);
-  // }, [messagesLocal, messages, conversationId]);
+  // }, [messagesLocal]);
 
-  // Debug logging
-  console.log("🔍 Debug Info:", {
-    serverMessages: messages?.length || 0,
-    localMessages: messagesLocal?.length || 0,
-    // displayMessages: displayMessages.length,
-    conversationId: conversationId
-  });
-    
   return (
     <div className="flex flex-col h-full">
       <ChatHeader otherUser={otherUser} />
       <MessageList 
-        messages={messagesLocal} 
+        messages={messagesLocal}
         status={status}
         loadMore={loadMore}
         messagesEndRef={messagesEndRef}

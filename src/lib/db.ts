@@ -8,6 +8,7 @@ interface ChatMessage {
   content: string;
   isEdited?: boolean;
   timestamp: number;
+  isDeleted?: boolean;
   creationTime?: number; // Store Convex _creationTime
   status: 'pending' | 'sent' | 'error';
 }

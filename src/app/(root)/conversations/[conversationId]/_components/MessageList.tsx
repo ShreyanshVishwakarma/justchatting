@@ -8,7 +8,7 @@ import MessageContextMenu from "./messageContextMenu";
 import { useQuery } from "convex/react";
 import { api } from "../../../../../../convex/_generated/api";
 import { Send } from "lucide-react";
-import { useState, useEffect } from "react";
+// ...existing code...
 
 
 type MessageListProps = {
@@ -31,40 +31,16 @@ const MessageList = ({
   onCopyMessage 
 }: MessageListProps) => {
     const me = useQuery(api.user.getMe);
-    const [animatedMessages, setAnimatedMessages] = useState<Set<string>>(new Set());
+// ...existing code...
     
-    // Track new messages for animation
-    useEffect(() => {
-      if (messages && messages.length > 0) {
-        const currentMessageIds = new Set(messages.map(msg => msg.id));
-        
-        // Clear animations for messages that no longer exist
-        setAnimatedMessages(prev => {
-          const filtered = new Set(Array.from(prev).filter(id => currentMessageIds.has(id)));
-          return filtered;
-        });
-        
-        const newMessageIds = messages
-          .filter(msg => !animatedMessages.has(msg.id))
-          .map(msg => msg.id);
-        
-        if (newMessageIds.length > 0) {
-          // Add new messages to animated set with a slight delay for staggered effect
-          newMessageIds.forEach((id, index) => {
-            setTimeout(() => {
-              setAnimatedMessages(prev => new Set([...prev, id]));
-            }, index * 100); // 100ms stagger between messages
-          });
-        }
-      }
-    }, [messages]);
-    
-    const formatTime = (timestamp: number) => {
-        return new Date(timestamp).toLocaleTimeString([], { 
-          hour: '2-digit', 
-          minute: '2-digit' 
-        });
-      }
+    // Handles both _creationTime and timestamp fields, and avoids NaN/Invalid Date
+    const formatTime = (msg: any) => {
+      const raw = msg._creationTime ?? msg.timestamp;
+      if (!raw || isNaN(Number(raw))) return '';
+      const date = new Date(Number(raw));
+      if (isNaN(date.getTime())) return '';
+      return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    }
 
   if (!messages || messages.length === 0) {
     return (
@@ -116,12 +92,10 @@ const MessageList = ({
           <div 
             key={message.id}
             className={cn(
-              "flex gap-2 max-w-[85%] sm:max-w-[70%] transition-all duration-500 ease-out",
+              "flex gap-2 max-w-[85%] sm:max-w-[70%]",
               {
                 "ml-auto flex-row-reverse": isMe,
-                "mr-auto": !isMe,
-                "opacity-100 translate-y-0": animatedMessages.has(message.id),
-                "opacity-0 translate-y-4": !animatedMessages.has(message.id)
+                "mr-auto": !isMe
               }
             )}
           >
@@ -146,15 +120,19 @@ const MessageList = ({
                 onCopy={() => onCopyMessage(message.content)}
               >
                 <div className={cn("px-4 py-2 rounded-2xl max-w-full break-words", {
-                  "bg-primary text-primary-foreground rounded-br-md": isMe,
+                  "bg-blue-950 text-primary-foreground rounded-br-md": isMe,
                   "bg-muted rounded-bl-md": !isMe
                 })}>
-                  <p className="text-sm leading-relaxed">{message.content}</p>
+                  {message.isDeleted ? (
+                    <span className="text-gray-500 ">[this message has been deleted]</span>
+                  ) : (
+                    <p className="text-sm leading-relaxed">{message.content}</p>
+                  )}
                 </div>
               </MessageContextMenu>
               {showTimestamp && (
                 <span className="text-xs text-muted-foreground px-2">
-                  {formatTime(message._creationTime)}
+                  {formatTime(message)}
                 </span>
               )}
             </div>

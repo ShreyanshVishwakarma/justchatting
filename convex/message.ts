@@ -34,7 +34,7 @@ export const newMessage = mutation({
     // Update the last message in the conversation
     await ctx.db.patch(args.conversationId, { lastMessageId: messageId });
 
-    return await ctx.db.get(messageId);
+    return message;
   },
 })
 
@@ -63,13 +63,17 @@ export const deleteMessage = mutation({
       throw new ConvexError("Message not found or you do not have permission to delete it");
     }
 
-    await ctx.db.delete(args.messageId);
+    await ctx.db.patch(args.messageId, {
+      isDeleted: true, 
+      content: "", 
+      isEdited: true, 
+    });
 
     // Optionally, update the conversation's last message
-    const conversation = await ctx.db.get(message.conversationId);
-    if (conversation?.lastMessageId === args.messageId) {
-      await ctx.db.patch(message.conversationId, { lastMessageId: undefined });
-    }
+    // const conversation = await ctx.db.get(message.conversationId);
+    // if (conversation?.lastMessageId === args.messageId) {
+    //   await ctx.db.patch(message.conversationId, { lastMessageId: undefined });
+    // }
 
     return true;
   },

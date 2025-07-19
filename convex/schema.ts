@@ -38,6 +38,7 @@ export default defineSchema({
     senderId: v.id("users"),
     content: v.string(),
     isEdited: v.optional(v.boolean()),
+    isDeleted: v.optional(v.boolean()),
     timestamp: v.number()
   }).index("by_conversationId_and_time", ["conversationId" , "timestamp"]),
 

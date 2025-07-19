@@ -8,12 +8,11 @@ import MessageContextMenu from "./messageContextMenu";
 import { useQuery } from "convex/react";
 import { api } from "../../../../../../convex/_generated/api";
 import { Send } from "lucide-react";
+import { useState, useEffect } from "react";
 
-// Define message type without conversationId since it's stripped in the API
-type MessageWithoutConversationId = Omit<Doc<"messages">, "conversationId">;
 
 type MessageListProps = {
-  messages: MessageWithoutConversationId[] | undefined;
+  messages: any[] | undefined; // Use 'any' to accommodate the live query type
   status: string;
   loadMore: (numItems: number) => void;
   messagesEndRef: React.RefObject<HTMLDivElement | null>;
@@ -32,6 +31,34 @@ const MessageList = ({
   onCopyMessage 
 }: MessageListProps) => {
     const me = useQuery(api.user.getMe);
+    const [animatedMessages, setAnimatedMessages] = useState<Set<string>>(new Set());
+    
+    // Track new messages for animation
+    useEffect(() => {
+      if (messages && messages.length > 0) {
+        const currentMessageIds = new Set(messages.map(msg => msg.id));
+        
+        // Clear animations for messages that no longer exist
+        setAnimatedMessages(prev => {
+          const filtered = new Set(Array.from(prev).filter(id => currentMessageIds.has(id)));
+          return filtered;
+        });
+        
+        const newMessageIds = messages
+          .filter(msg => !animatedMessages.has(msg.id))
+          .map(msg => msg.id);
+        
+        if (newMessageIds.length > 0) {
+          // Add new messages to animated set with a slight delay for staggered effect
+          newMessageIds.forEach((id, index) => {
+            setTimeout(() => {
+              setAnimatedMessages(prev => new Set([...prev, id]));
+            }, index * 100); // 100ms stagger between messages
+          });
+        }
+      }
+    }, [messages]);
+    
     const formatTime = (timestamp: number) => {
         return new Date(timestamp).toLocaleTimeString([], { 
           hour: '2-digit', 
@@ -71,25 +98,33 @@ const MessageList = ({
         </div>
       )}
       
-      {messages?.toReversed().map((message, index) => {
-        const reversedMessages = messages.toReversed();
+      {messages?.map((message, index) => {
         const isMe = message.senderId === me?._id;
-        const showAvatar = !isMe && (index === messages.length - 1 || reversedMessages[index + 1]?.senderId !== message.senderId);
+        const showAvatar = !isMe && (index === 0 || messages[index - 1]?.senderId !== message.senderId);
+        const isLatestMessage = index === messages.length - 1; // Last in array means latest chronologically
         
         // Check if we should show timestamp
         // Show timestamp only for the last message in a sequence from the same sender
-        const nextMessage = reversedMessages[index + 1]; // Next message in display order (chronologically older)
+        const nextMessage = messages[index + 1]; // Next message in chronological order
         const TIME_THRESHOLD = 5 * 60 * 1000; // 5 minutes in milliseconds
         
         const showTimestamp = !nextMessage || 
           nextMessage.senderId !== message.senderId || 
-          (message._creationTime - nextMessage._creationTime) > TIME_THRESHOLD;
+          (nextMessage._creationTime - message._creationTime) > TIME_THRESHOLD;
 
         return (
-          <div key={message._id} className={cn("flex gap-2 max-w-[85%] sm:max-w-[70%]", {
-            "ml-auto flex-row-reverse": isMe,
-            "mr-auto": !isMe
-          })}>
+          <div 
+            key={message.id}
+            className={cn(
+              "flex gap-2 max-w-[85%] sm:max-w-[70%] transition-all duration-500 ease-out",
+              {
+                "ml-auto flex-row-reverse": isMe,
+                "mr-auto": !isMe,
+                "opacity-100 translate-y-0": animatedMessages.has(message.id),
+                "opacity-0 translate-y-4": !animatedMessages.has(message.id)
+              }
+            )}
+          >
             {!isMe && (
               <Avatar className={cn("h-8 w-8 mt-1", {
                 "invisible": !showAvatar
@@ -107,7 +142,7 @@ const MessageList = ({
               "space-y-0.5": showTimestamp
             })}>
               <MessageContextMenu 
-                onDelete={() => onDeleteMessage(message._id)}
+                onDelete={() => onDeleteMessage(message._id as Id<"messages">)}
                 onCopy={() => onCopyMessage(message.content)}
               >
                 <div className={cn("px-4 py-2 rounded-2xl max-w-full break-words", {

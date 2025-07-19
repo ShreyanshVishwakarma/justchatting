@@ -82,7 +82,7 @@
   --card-foreground: oklch(0.985 0 0);
   --popover: oklch(0.21 0.006 285.885);
   --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(31.519% 0.07705 142.158);
+  --primary: oklch(58.486% 0.22083 27.537);
   --primary-foreground: oklch(0.969 0.015 12.422);
   --secondary: oklch(0.274 0.006 286.033);
   --secondary-foreground: oklch(0.985 0 0);
@@ -270,6 +270,41 @@
   .text-highlight.active::after {
     transform: scaleX(1);
     transform-origin: bottom left;
+  }
+
+  /* Chat message entrance animations */
+  .animate-message-in {
+    animation: messageIn 0.4s ease-out both;
+  }
+  
+  .animate-message-bounce {
+    animation: messageBounce 0.6s ease-out both;
+  }
+  
+  @keyframes messageIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px) scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+  
+  @keyframes messageBounce {
+    0% {
+      opacity: 0;
+      transform: translateY(20px) scale(0.9);
+    }
+    60% {
+      opacity: 1;
+      transform: translateY(-2px) scale(1.02);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
   }
 }
 

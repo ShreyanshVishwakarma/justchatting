@@ -24,10 +24,6 @@ export const get = query({
 
     return {
       ...result,
-      page: result.page.map((message) => {
-        const { conversationId, ...messageWithoutConversationId } = message;
-        return messageWithoutConversationId;
-      }),
     };
   },
 });

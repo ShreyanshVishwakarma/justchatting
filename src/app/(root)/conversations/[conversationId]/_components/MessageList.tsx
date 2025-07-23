@@ -17,7 +17,8 @@ type MessageListProps = {
   loadMore: (numItems: number) => void;
   messagesEndRef: React.RefObject<HTMLDivElement | null>;
   otherUser: Doc<"users"> | null | undefined;
-  onDeleteMessage: (messageId: Id<"messages">) => void;
+  onSoftDeleteMessage: (messageId: Id<"messages">) => void;
+  onHardDeleteMessage: (messageId: Id<"messages">) => void;
   onCopyMessage: (messageContent: string) => void;
 };
 
@@ -27,7 +28,8 @@ const MessageList = ({
   loadMore, 
   messagesEndRef, 
   otherUser, 
-  onDeleteMessage, 
+  onSoftDeleteMessage, 
+  onHardDeleteMessage,
   onCopyMessage 
 }: MessageListProps) => {
     const me = useQuery(api.user.getMe);
@@ -116,15 +118,16 @@ const MessageList = ({
               "space-y-0.5": showTimestamp
             })}>
               <MessageContextMenu 
-                onDelete={() => onDeleteMessage(message._id as Id<"messages">)}
+                onSoftDelete={() => onSoftDeleteMessage(message._id as Id<"messages">)}
+                onHardDelete={() => onHardDeleteMessage(message._id as Id<"messages">)}
                 onCopy={() => onCopyMessage(message.content)}
               >
                 <div className={cn("px-4 py-2 rounded-2xl max-w-full break-words", {
-                  "bg-blue-950 text-primary-foreground rounded-br-md": isMe,
-                  "bg-muted rounded-bl-md": !isMe
+                  "bg-chat-primary rounded-br-md": isMe,
+                  "bg-muted text-foreground rounded-bl-md": !isMe
                 })}>
                   {message.isDeleted ? (
-                    <span className="text-gray-500 ">[this message has been deleted]</span>
+                    <span className="text-muted-foreground italic">[this message has been deleted]</span>
                   ) : (
                     <p className="text-sm leading-relaxed">{message.content}</p>
                   )}

@@ -256,8 +256,8 @@ export function ConversationsPage() {
       <div className="bg-card border-b border-border sticky top-0 z-10">
         <div className="flex items-center justify-between px-4 py-3">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary/80 rounded-xl flex items-center justify-center shadow-sm">
-              <MessageCircle className="w-4 h-4 text-primary-foreground" />
+            <div className="w-8 h-8 bg-chat-primary rounded-xl flex items-center justify-center shadow-sm">
+              <MessageCircle className="w-4 h-4 text-white" />
             </div>
             <div>
               <h1 className="text-lg font-semibold text-foreground">Conversations</h1>

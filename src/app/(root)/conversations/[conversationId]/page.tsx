@@ -18,6 +18,7 @@ export default function ConversationPage({ params} : {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const newMessage = useMutation(api.message.newMessage);
   const me = useQuery(api.user.getMe);
+  const HardDeleteMessageMutation = useMutation(api.message.hardDeleteMessage);
 
   const {
     results: messages,
@@ -137,14 +138,20 @@ export default function ConversationPage({ params} : {
     }
   }
 
-  const handleDeleteMessage = async (messageId: Id<"messages">) => {
+  const handleSoftDeleteMessage = async (messageId: Id<"messages">) => {
     try {
-      // Delete from server
       await deleteMessageMutation({ messageId });
-      
-      // Delete from local storage
+      // await db.messages.where('_id').equals(messageId as string).delete();
+      console.log(" Message deleted successfully");
+    } catch (error) {
+      console.error(" Error deleting message:", error);
+    }
+  }
+
+  const handleHardDeleteMessage = async (messageId: Id<"messages">) => {
+    try {
+      await HardDeleteMessageMutation({ messageId });
       await db.messages.where('_id').equals(messageId as string).delete();
-      
       console.log(" Message deleted successfully");
     } catch (error) {
       console.error(" Error deleting message:", error);
@@ -152,6 +159,7 @@ export default function ConversationPage({ params} : {
   }
 
   const handleCopyMessage = (messageContent: string) => {
+
     navigator.clipboard.writeText(messageContent)
       .then(() => {
         console.log(" Message copied to clipboard");
@@ -179,7 +187,8 @@ export default function ConversationPage({ params} : {
         loadMore={loadMore}
         messagesEndRef={messagesEndRef}
         otherUser={otherUser}
-        onDeleteMessage={handleDeleteMessage}
+        onSoftDeleteMessage={handleSoftDeleteMessage}
+        onHardDeleteMessage={handleHardDeleteMessage}
         onCopyMessage={handleCopyMessage}
       />
       <ChatInput handleSubmit={handleSubmit} />

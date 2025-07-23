@@ -77,3 +77,33 @@ export const deleteMessage = mutation({
     return true;
   },
 });
+
+
+export const hardDeleteMessage = mutation({
+  args:{
+    messageId: v.id("messages"),
+  },
+  handler: async (ctx , args) => {
+    const identify = await ctx.auth.getUserIdentity();
+    if (!identify) {
+      throw new ConvexError("Not authenticated");
+    }
+    const user = await getUserbyTokenIdentifier({
+      ctx,
+      tokenIdentifier: identify.subject,
+    })
+    if (!user) {
+      throw new ConvexError("User not found");
+    }
+    const message = await ctx.db.get(args.messageId);
+    if(!message || message.senderId !== user._id) {
+      throw new ConvexError("Message not found or you do not have permission to delete it");
+    }
+    
+    await ctx.db.delete(args.messageId);
+
+    await ctx.db.patch(message.conversationId, {
+      lastMessageId: undefined
+    });  
+  }
+});

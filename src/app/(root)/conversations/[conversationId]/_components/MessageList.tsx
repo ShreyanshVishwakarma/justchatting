@@ -5,11 +5,8 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Doc, Id } from "../../../../../../convex/_generated/dataModel";
 import MessageContextMenu from "./messageContextMenu";
-import { useQuery } from "convex/react";
-import { api } from "../../../../../../convex/_generated/api";
 import { Send } from "lucide-react";
-// ...existing code...
-
+import React from "react";
 
 type MessageListProps = {
   messages: any[] | undefined; // Use 'any' to accommodate the live query type
@@ -17,24 +14,38 @@ type MessageListProps = {
   loadMore: (numItems: number) => void;
   messagesEndRef: React.RefObject<HTMLDivElement | null>;
   otherUser: Doc<"users"> | null | undefined;
+  me: Doc<"users"> | null | undefined;
   onSoftDeleteMessage: (messageId: Id<"messages">) => void;
   onHardDeleteMessage: (messageId: Id<"messages">) => void;
   onCopyMessage: (messageContent: string) => void;
 };
 
-const MessageList = ({ 
+const MessageList = React.memo(({ 
   messages, 
   status, 
   loadMore, 
   messagesEndRef, 
+  me,
   otherUser, 
   onSoftDeleteMessage, 
   onHardDeleteMessage,
   onCopyMessage 
 }: MessageListProps) => {
-    const me = useQuery(api.user.getMe);
-// ...existing code...
-    
+  
+  if (!me || !otherUser) {
+    return (
+      <div className="flex-1 overflow-y-auto p-4">
+        <div className="flex items-center justify-center h-full">
+          <p className="text-muted-foreground">Loading conversation...</p>
+        </div>
+      </div>
+    );
+  }
+
+    console.log("me:", me);
+    console.log("messages:", messages);
+    console.log("otherUser:", otherUser);
+
     // Handles both _creationTime and timestamp fields, and avoids NaN/Invalid Date
     const formatTime = (msg: any) => {
       const raw = msg._creationTime ?? msg.timestamp;
@@ -43,6 +54,7 @@ const MessageList = ({
       if (isNaN(date.getTime())) return '';
       return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     }
+  
 
   if (!messages || messages.length === 0) {
     return (
@@ -146,6 +158,6 @@ const MessageList = ({
       <div ref={messagesEndRef} />
     </div>
   );
-};
+});
 
 export default MessageList;

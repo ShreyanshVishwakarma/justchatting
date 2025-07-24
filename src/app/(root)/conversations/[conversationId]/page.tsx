@@ -30,7 +30,7 @@ export default function ConversationPage({ params} : {
     { initialNumItems: 100 }
   )
 
-  const messagesLocal = useLiveQuery(async () => {
+  const rawMessagesLocal = useLiveQuery(async () => {
     try{
       return await db.messages
         .where('conversationId')
@@ -178,6 +178,20 @@ export default function ConversationPage({ params} : {
   //   });
   // }, [messagesLocal]);
 
+  // console.log("Page component rendering");
+  // console.log("messagesLocal:", messagesLocal); 
+  // console.log("me:", me);
+
+const messagesLocal = React.useMemo(() => {
+  return rawMessagesLocal;
+}, [rawMessagesLocal]);
+
+
+const memoMe = React.useMemo(() => {
+  return me;
+}, [me]);
+
+
   return (
     <div className="flex flex-col h-full">
       <ChatHeader otherUser={otherUser} />
@@ -187,6 +201,7 @@ export default function ConversationPage({ params} : {
         loadMore={loadMore}
         messagesEndRef={messagesEndRef}
         otherUser={otherUser}
+        me={memoMe}
         onSoftDeleteMessage={handleSoftDeleteMessage}
         onHardDeleteMessage={handleHardDeleteMessage}
         onCopyMessage={handleCopyMessage}

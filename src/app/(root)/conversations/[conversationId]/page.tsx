@@ -9,6 +9,68 @@ import ChatInput from './_components/ChatInput'
 import { useLiveQuery } from "dexie-react-hooks"
 import { db } from "@/lib/db"; 
 
+
+const syncToLocal = async (messagesLive: any[]) => {
+  if (!messagesLive || messagesLive.length === 0) {
+    return;
+  }
+
+  try {
+    // Clone to prevent race conditions
+    const serverMessages = [...messagesLive];
+    
+    // Get ALL local messages for this conversation
+    const localMessages = await db.messages
+      .where('conversationId')
+      .equals(serverMessages[0].conversationId as string)
+      .toArray();
+    
+    // Create maps for efficient lookups
+    const serverMessageMap = new Map(serverMessages.map(msg => [msg._id, msg]));
+    const localMessageMap = new Map(localMessages.map(msg => [msg._id, msg]));
+    
+    const upsertOperations = [];
+    const deleteOperations = [];
+    
+    //  Add new server messages that don't exist locally
+    for (const serverMsg of serverMessages) {
+      if (!localMessageMap.has(serverMsg._id)) {
+        // This is a new message from the server - add it locally
+        upsertOperations.push(
+          db.messages.put({
+            id: serverMsg._id,
+            _id: serverMsg._id,
+            ...serverMsg,
+            status: 'sent'
+          })
+        );
+      } else {
+        // Update existing message
+        upsertOperations.push(
+          db.messages.update(serverMsg._id, {
+            ...serverMsg,
+            status: 'sent'
+          })
+        );
+      }
+    }
+    
+    // 2. Handle deleted messages
+    for (const localMsg of localMessages) {
+    
+      
+      if (!serverMessageMap.has(localMsg._id)) {
+        deleteOperations.push(db.messages.delete(localMsg._id as string));
+      }
+    }
+    
+    await Promise.all([...upsertOperations, ...deleteOperations]);
+    console.log(`Synced ${serverMessages.length} server messages, added/updated ${upsertOperations.length}, deleted ${deleteOperations.length}`);
+  } catch (error) {
+    console.error("Error syncing to local:", error);
+  }
+}
+
 export default function ConversationPage({ params} : {
   params : Promise<{ conversationId: Id<"conversations">}>
 }) {
@@ -42,8 +104,7 @@ export default function ConversationPage({ params} : {
     }
   }, [conversationId]) || []; 
 
-  useEffect(() => {
-    const syncServerMessages = async () => {
+  useEffect(() => { const syncServerMessages = async () => {
       if (!messages || messages.length === 0) return;
       
       try {
@@ -60,7 +121,11 @@ export default function ConversationPage({ params} : {
           status: 'sent' as const
         }));
         
-        await db.messages.bulkPut(transformedMessages);
+        // await db.messages.bulkPut(transformedMessages);
+        //this was the old way, but it was causing issues with deleted messages
+// idk how to send clone of treanformedMessages to this function ...... what if treansformedMessages updates in between
+// exectuion of this fucntion ?
+        await syncToLocal(transformedMessages);
         console.log(` Synced ${transformedMessages.length} server messages to local storage`);
       }
       catch (error) {
@@ -68,7 +133,7 @@ export default function ConversationPage({ params} : {
       }
     }
     syncServerMessages();
-  }, [messages, conversationId]); 
+  }, [messages,conversationId]); 
 
   const handleSubmit = async (message: string) => {
     if (!me) return;
@@ -120,6 +185,7 @@ export default function ConversationPage({ params} : {
         //   creationTime: serverMessage._creationTime,
         //   status: 'sent'
         // });
+        //
         
         console.log(" Updated local message with server data");
       }
@@ -159,7 +225,7 @@ export default function ConversationPage({ params} : {
   }
 
   const handleCopyMessage = (messageContent: string) => {
-
+    
     navigator.clipboard.writeText(messageContent)
       .then(() => {
         console.log(" Message copied to clipboard");
@@ -182,9 +248,6 @@ export default function ConversationPage({ params} : {
   // console.log("messagesLocal:", messagesLocal); 
   // console.log("me:", me);
 
-const messagesLocal = React.useMemo(() => {
-  return rawMessagesLocal;
-}, [rawMessagesLocal]);
 
 
 const memoMe = React.useMemo(() => {
@@ -196,7 +259,7 @@ const memoMe = React.useMemo(() => {
     <div className="flex flex-col h-full">
       <ChatHeader otherUser={otherUser} />
       <MessageList 
-        messages={messagesLocal}
+        messages={rawMessagesLocal}
         status={status}
         loadMore={loadMore}
         messagesEndRef={messagesEndRef}

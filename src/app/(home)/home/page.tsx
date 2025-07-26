@@ -173,19 +173,19 @@ export default function Home() {
   
   const testimonials: TestimonialProps[] = [
     {
-      quote: "Just Chatting has completely transformed the way I communicate with friends. The privacy features are unmatched.",
-      author: "Alex Johnson",
-      role: "Software Engineer"
+      quote: "Just Chatting has completely transformed the way I communicate with friends. I have stopped communication with them now.",
+      author: "Dinesh kumar",
+      role: "Student"
     },
     {
-      quote: "I was looking for a secure messaging app that respects my privacy. Just Chatting exceeds all expectations.",
-      author: "Samantha Lee",
-      role: "Privacy Advocate"
+      quote: "I was looking for a secure messaging app that respects my privacy. Just Chatting changed my mind.",
+      author: "Jeevant",
+      role: "Friend of Dinesh"
     },
     {
-      quote: "The speed and reliability of Just Chatting make it my go-to for all important conversations.",
-      author: "Michael Chen",
-      role: "Tech Consultant"
+      quote: "The speed and reliability of Just Chatting make it my go-to for all important conversations like trafficking n drugs.",
+      author: "_x2popcicles_",
+      role: "Dark web dealer"
     }
   ];
   

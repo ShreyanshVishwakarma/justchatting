@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Kalam, Patrick_Hand } from "next/font/google";
 import ConvexClientComponent from "@/providers/convexClientComponent";
 import { ClerkProvider } from "@clerk/nextjs";
 
@@ -8,14 +8,16 @@ import { ThemeProvider } from "@/providers/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const kalam = Kalam({
+  variable: "--font-kalam",
   subsets: ["latin"],
+  weight: ["400", "700"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const patrickHand = Patrick_Hand({
+  variable: "--font-patrick-hand",
   subsets: ["latin"],
+  weight: "400",
 });
 
 export const metadata: Metadata = {
@@ -55,12 +57,13 @@ export default function RootLayout({
       <ConvexClientComponent>
          <html lang="en" suppressHydrationWarning={true}>
            <body
-            className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+            className={`${kalam.variable} ${patrickHand.variable} antialiased`}
                >
             <ThemeProvider 
               attribute="class"
-              defaultTheme="system"
-              enableSystem
+              defaultTheme="light"
+              enableSystem={false}
+              forcedTheme="light"
               disableTransitionOnChange
             >
              {children}

@@ -1,8 +1,13 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-
 @theme inline {
+  --font-kalam: var(--font-kalam);
+  --font-patrick-hand: var(--font-patrick-hand);
+
+  --radius-wobbly: 255px 15px 225px 15px / 15px 225px 15px 255px;
+  --radius-wobbly-sm: 20px 255px 15px 225px / 255px 15px 225px 15px;
+
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -43,76 +48,36 @@
 }
 
 :root {
-  --radius: 0.65rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.141 0.005 285.823);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.141 0.005 285.823);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.141 0.005 285.823);
-  --primary: oklch(0.645 0.246 16.439);
-  --primary-foreground: oklch(0.969 0.015 12.422);
-  --secondary: oklch(0.967 0.001 286.375);
-  --secondary-foreground: oklch(0.21 0.006 285.885);
-  --muted: oklch(0.967 0.001 286.375);
-  --muted-foreground: oklch(0.552 0.016 285.938);
-  --accent: oklch(0.967 0.001 286.375);
-  --accent-foreground: oklch(0.21 0.006 285.885);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.92 0.004 286.32);
-  --input: oklch(0.92 0.004 286.32);
-  --ring: oklch(0.645 0.246 16.439);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.141 0.005 285.823);
-  --sidebar-primary: oklch(0.645 0.246 16.439);
-  --sidebar-primary-foreground: oklch(0.969 0.015 12.422);
-  --sidebar-accent: oklch(0.967 0.001 286.375);
-  --sidebar-accent-foreground: oklch(0.21 0.006 285.885);
-  --sidebar-border: oklch(0.92 0.004 286.32);
-  --sidebar-ring: oklch(0.645 0.246 16.439);
-  --color-chat-primary: oklch(77.452% 0.11909 168.684);
-  --color-chat-secondary: oklch(0.967 0.001 286.375);
-}
-
-.dark {
-  --background: oklch(0.141 0.005 285.823);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.21 0.006 285.885);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.21 0.006 285.885);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(58.486% 0.22083 27.537);
-  --primary-foreground: oklch(0.969 0.015 12.422);
-  --secondary: oklch(0.274 0.006 286.033);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.274 0.006 286.033);
-  --muted-foreground: oklch(0.705 0.015 286.067);
-  --accent: oklch(0.274 0.006 286.033);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.645 0.246 16.439);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.21 0.006 285.885);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.645 0.246 16.439);
-  --sidebar-primary-foreground: oklch(0.969 0.015 12.422);
-  --sidebar-accent: oklch(0.274 0.006 286.033);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.645 0.246 16.439);
-  --color-chat-primary: oklch(0.281 0.0924 268.13);
-  --color-chat-secondary: oklch(0.274 0.006 286.033);
+  --radius: 0;
+  --background: #fdfbf7;
+  --foreground: #2d2d2d;
+  --card: #fdfbf7;
+  --card-foreground: #2d2d2d;
+  --popover: #fdfbf7;
+  --popover-foreground: #2d2d2d;
+  --primary: #2d2d2d;
+  --primary-foreground: #ffffff; /* paper white */
+  --secondary: #2d5da1;
+  --secondary-foreground: #ffffff;
+  --muted: #e5e0d8;
+  --muted-foreground: #2d2d2d;
+  --accent: #ff4d4d;
+  --accent-foreground: #ffffff;
+  --destructive: #ff4d4d;
+  --destructive-foreground: #ffffff;
+  --border: #2d2d2d;
+  --input: #2d2d2d;
+  --ring: #2d2d2d;
+  --sidebar: #fdfbf7;
+  --sidebar-foreground: #2d2d2d;
+  --sidebar-primary: #2d2d2d;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #ff4d4d;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: #2d2d2d;
+  --sidebar-ring: #2d2d2d;
+  --color-chat-primary: #ff4d4d;
+  --color-chat-secondary: #e5e0d8;
 }
 
 @layer base {
@@ -130,28 +95,28 @@
   .animate-fade-in {
     animation: fadeIn 1s ease-out;
   }
-  
+
   .animate-slide-up {
     animation: slideUp 0.8s ease-out;
   }
-  
+
   .animate-gradient-x {
     animation: gradientX 3s ease-in-out infinite;
     background-size: 200% 200%;
   }
-  
+
   .animate-pulse-slow {
     animation: pulseSlow 4s ease-in-out infinite;
   }
-  
+
   .animate-float {
     animation: float 5s ease-in-out infinite;
   }
-  
+
   .animate-bounce-subtle {
     animation: bouncingSubtle 2s ease-in-out infinite;
   }
-  
+
   @keyframes fadeIn {
     from {
       opacity: 0;
@@ -162,7 +127,7 @@
       transform: translateY(0);
     }
   }
-  
+
   @keyframes slideUp {
     from {
       opacity: 0;
@@ -173,36 +138,43 @@
       transform: translateY(0);
     }
   }
-  
+
   @keyframes gradientX {
-    0%, 100% {
+    0%,
+    100% {
       background-position: 0% 50%;
     }
     50% {
       background-position: 100% 50%;
     }
   }
-  
+
   @keyframes pulseSlow {
-    0%, 100% {
+    0%,
+    100% {
       opacity: 1;
     }
     50% {
       opacity: 0.85;
     }
   }
-  
+
   @keyframes float {
-    0%, 100% {
+    0%,
+    100% {
       transform: translateY(0);
     }
     50% {
       transform: translateY(-10px);
     }
   }
-  
+
   @keyframes bouncingSubtle {
-    0%, 20%, 50%, 80%, 100% {
+    0%,
+    20%,
+    50%,
+    80%,
+    100% {
       transform: translateY(0);
     }
     40% {
@@ -212,12 +184,12 @@
       transform: translateY(-3px);
     }
   }
-  
+
   /* Stagger animation for feature cards */
   .animate-stagger-in {
     animation: staggerIn 0.6s ease-out both;
   }
-  
+
   @keyframes staggerIn {
     from {
       opacity: 0;
@@ -242,15 +214,24 @@
     position: relative;
     top: 0.1em;
   }
-  
+
   @keyframes blink {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0; }
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0;
+    }
   }
-  
+
   @keyframes typing {
-    from { width: 0 }
-    to { width: 100% }
+    from {
+      width: 0;
+    }
+    to {
+      width: 100%;
+    }
   }
 
   /* Highlight text animation */
@@ -258,7 +239,7 @@
     position: relative;
     display: inline-block;
   }
-  
+
   .text-highlight::after {
     content: "";
     position: absolute;
@@ -266,18 +247,17 @@
     left: 0;
     width: 100%;
     height: 30%;
-    background-color: theme('colors.primary.DEFAULT / 0.15');
+    background-color: theme("colors.primary.DEFAULT / 0.15");
     z-index: -1;
     transform: scaleX(0);
     transform-origin: bottom right;
     transition: transform 0.5s ease;
   }
-  
+
   .text-highlight.active::after {
     transform: scaleX(1);
     transform-origin: bottom left;
   }
-
 }
 
 /* PWA Specific Styles */
@@ -286,20 +266,20 @@
   ::-webkit-scrollbar {
     width: 6px;
   }
-  
+
   ::-webkit-scrollbar-track {
     background: transparent;
   }
-  
+
   ::-webkit-scrollbar-thumb {
     background: rgba(0, 0, 0, 0.2);
     border-radius: 3px;
   }
-  
+
   ::-webkit-scrollbar-thumb:hover {
     background: rgba(0, 0, 0, 0.3);
   }
-  
+
   /* Prevent pull-to-refresh on mobile PWA */
   body {
     overscroll-behavior-y: contain;
@@ -311,15 +291,15 @@
   .safe-area-top {
     padding-top: max(1rem, env(safe-area-inset-top));
   }
-  
+
   .safe-area-bottom {
     padding-bottom: max(1rem, env(safe-area-inset-bottom));
   }
-  
+
   .safe-area-left {
     padding-left: max(1rem, env(safe-area-inset-left));
   }
-  
+
   .safe-area-right {
     padding-right: max(1rem, env(safe-area-inset-right));
   }
@@ -327,9 +307,9 @@
 
 /* Better touch targets for mobile */
 @media (hover: none) and (pointer: coarse) {
-  button, 
-  [role="button"], 
-  input[type="button"], 
+  button,
+  [role="button"],
+  input[type="button"],
   input[type="submit"] {
     min-height: 44px;
     min-width: 44px;
@@ -351,7 +331,8 @@
 /* Enhanced animations for the landing page */
 
 @keyframes float {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0px);
   }
   50% {
@@ -360,7 +341,8 @@
 }
 
 @keyframes gradient-x {
-  0%, 100% {
+  0%,
+  100% {
     background-size: 200% 200%;
     background-position: left center;
   }
@@ -371,7 +353,8 @@
 }
 
 @keyframes bounce-subtle {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0px);
     animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
   }
@@ -382,7 +365,8 @@
 }
 
 @keyframes pulse-glow {
-  0%, 100% {
+  0%,
+  100% {
     box-shadow: 0 0 20px rgba(var(--primary), 0.1);
   }
   50% {
@@ -440,7 +424,12 @@
 }
 
 .animate-shimmer {
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.1),
+    transparent
+  );
   background-size: 200% 100%;
   animation: shimmer 2s infinite;
 }
@@ -477,18 +466,83 @@
 }
 
 .btn-enhanced::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
   transition: left 0.5s;
 }
 
 .btn-enhanced:hover::before {
   left: 100%;
+}
+
+/* ── Scroll fade mask for message list ───────────────────────────────────────
+   The sketchy wobbly border stays fixed; messages fade in/out at the edges
+   as the user scrolls, reinforcing the "framed window" feel.
+────────────────────────────────────────────────────────────────────────────── */
+.message-scroll-fade {
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    black 52px,
+    black calc(100% - 64px),
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    black 52px,
+    black calc(100% - 64px),
+    transparent 100%
+  );
+}
+
+/* Tone-down utility: reduces flashy shadows, rotations, translations and slows animations
+   Apply the `tone-down` class on a top-level container to make the UI simpler and plainer
+   while preserving the hand-drawn theme. */
+.tone-down * {
+  transition-duration: 120ms !important;
+  animation-duration: 8ms !important;
+}
+/* Replace heavy shadows with subtle hairline */
+.tone-down [class*="shadow-"] {
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.06) !important;
+}
+/* Remove exaggerated rotations/translations */
+.tone-down [class*="rotate-"],
+.tone-down [class*="-translate"] {
+  transform: none !important;
+}
+/* Prevent hover classes that move or scale elements from being too loud */
+.tone-down [class*="hover:-translate"],
+.tone-down [class*="hover:rotate"],
+.tone-down [class*="hover:scale"] {
+  /* When hovered, just slightly change opacity instead */
+}
+.tone-down [class*="hover:-translate"]:hover,
+.tone-down [class*="hover:rotate"]:hover,
+.tone-down [class*="hover:scale"]:hover {
+  transform: none !important;
+  opacity: 0.98 !important;
+}
+
+/* Reduce emphasis of animated accents */
+.tone-down .animate-float,
+.tone-down .animate-gradient-x,
+.tone-down .animate-pulse-slow,
+.tone-down .animate-bounce-subtle,
+.tone-down .animate-shimmer {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
 }
 
 /* Reduce motion for users who prefer it */

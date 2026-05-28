@@ -46,16 +46,16 @@ export const AddFriend= () => {
     return(
         <Dialog>
             <DialogTrigger asChild>
-                <div className="p-2 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground cursor-pointer transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl">
+                <div className="p-3 bg-[#ffeb3b] text-foreground border-[3px] border-border cursor-pointer transition-all duration-200 hover:-translate-y-1 block shadow-[4px_4px_0_0_#2d2d2d] hover:shadow-[6px_6px_0_0_#2d2d2d]" style={{ borderRadius: "var(--radius-wobbly-sm)" }}>
                     <UserPlus className="w-5 h-5" />
                 </div>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-md max-w-[90vw] bg-card/95 backdrop-blur-xl border border-border shadow-2xl rounded-2xl">
+            <DialogContent className="sm:max-w-md max-w-[90vw] bg-white border-[3px] border-border shadow-[8px_8px_0_0_#2d2d2d] rotate-[1deg]" style={{ borderRadius: "var(--radius-wobbly)" }}>
                 <DialogHeader className="space-y-2">
-                    <DialogTitle className="text-xl font-bold text-primary">
+                    <DialogTitle className="text-3xl font-[family-name:var(--font-kalam)] font-bold text-foreground">
                         Add a Friend
                     </DialogTitle>
-                    <DialogDescription className="text-muted-foreground text-sm">
+                    <DialogDescription className="text-muted-foreground text-lg font-[family-name:var(--font-patrick-hand)]">
                         Send a friend request by entering their email address and start connecting.
                     </DialogDescription>
                 </DialogHeader>
@@ -66,12 +66,12 @@ export const AddFriend= () => {
                             name="email"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel className="text-sm font-semibold">Email Address</FormLabel>
+                                    <FormLabel className="text-xl font-[family-name:var(--font-kalam)] font-bold">Email Address</FormLabel>
                                     <FormControl>
                                         <Input 
                                             placeholder="friend@example.com" 
                                             {...field} 
-                                            className="h-10 bg-background border border-border rounded-lg shadow-lg focus:shadow-xl focus:border-primary transition-all duration-300"
+                                            className="h-12 bg-white border-[3px] border-border shadow-[4px_4px_0_0_#2d2d2d] focus-visible:ring-0 focus-visible:ring-offset-0 focus:translate-x-1 focus:translate-y-1 focus:shadow-[2px_2px_0_0_#2d2d2d] transition-all duration-300 font-[family-name:var(--font-patrick-hand)] text-lg" style={{ borderRadius: "var(--radius-wobbly-sm)" }}
                                         />
                                     </FormControl>
                                     <FormMessage />
@@ -80,7 +80,7 @@ export const AddFriend= () => {
                         />
                         <Button 
                             type="submit" 
-                            className="w-full h-10 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-300"
+                            className="w-full h-12 bg-[#ffeb3b] hover:bg-[#ffeb3b]/90 text-foreground font-[family-name:var(--font-patrick-hand)] text-xl border-[3px] border-border shadow-[4px_4px_0_0_#2d2d2d] hover:-translate-y-1 hover:shadow-[6px_6px_0_0_#2d2d2d] transition-all duration-200 rotate-[-1deg]" style={{ borderRadius: "var(--radius-wobbly-sm)" }}
                         >
                             Send Friend Request
                         </Button>

@@ -1,32 +1,53 @@
-import React from 'react'
+import React from "react";
+import { Users } from "lucide-react";
 
-const page = () => {
+const FriendsPage = () => {
   return (
-    <div className="h-full flex items-center justify-center p-6">
-      <div className="text-center space-y-4 max-w-md">
-        <div className="mb-6">
-          <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full mx-auto mb-4 flex items-center justify-center">
-            <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-            </svg>
+    <div className="h-full flex items-center justify-center p-8">
+      <div className="text-center space-y-6 max-w-sm w-full">
+        {/* Sketchy illustration */}
+        <div className="flex justify-center">
+          <div className="relative">
+            {/* Tape strip */}
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-3 w-12 h-4 bg-muted/80 border-[2px] border-border/30 rotate-[2deg] z-20" />
+            <div
+              className="w-24 h-24 bg-[#fdf8c1] border-[3px] border-border shadow-[4px_4px_0_0_#2d2d2d] flex items-center justify-center rotate-[-3deg]"
+              style={{ borderRadius: "var(--radius-wobbly-sm)" }}
+            >
+              <Users className="w-12 h-12 text-foreground" strokeWidth={1.5} />
+            </div>
+            {/* Small accent square */}
+            <div
+              className="absolute -bottom-2 -right-3 w-8 h-8 bg-accent border-[3px] border-border shadow-[2px_2px_0_0_#2d2d2d] rotate-[10deg]"
+              style={{ borderRadius: "var(--radius-wobbly-sm)" }}
+            />
           </div>
-          <h2 className="text-2xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
-            Welcome to Friends
-          </h2>
         </div>
-        <p className="text-muted-foreground leading-relaxed">
-          Connect with others and build your network. Manage friend requests, 
-          discover new connections, and start conversations with your friends.
-        </p>
-        <div className="pt-4">
-          <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
-            <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-            <span>Ready to connect</span>
-          </div>
+
+        {/* Heading */}
+        <div className="space-y-2">
+          <h2 className="font-[family-name:var(--font-kalam)] text-3xl font-bold text-foreground leading-tight">
+            your pals
+          </h2>
+          <p className="font-[family-name:var(--font-patrick-hand)] text-lg text-muted-foreground leading-relaxed">
+            manage friend requests, find new connections, and start
+            conversations.
+          </p>
+        </div>
+
+        {/* Hint note */}
+        <div
+          className="inline-flex items-center gap-2 px-4 py-2 border-[2px] border-dashed border-border/60 rotate-[-0.5deg]"
+          style={{ borderRadius: "var(--radius-wobbly-sm)" }}
+        >
+          <div className="w-2 h-2 bg-green-500 rounded-full flex-shrink-0" />
+          <span className="font-[family-name:var(--font-patrick-hand)] text-base text-muted-foreground">
+            ready to connect
+          </span>
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default page
+export default FriendsPage;

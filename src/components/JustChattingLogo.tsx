@@ -17,30 +17,21 @@ export const JustChattingLogo: React.FC<JustChattingLogoProps> = ({
       className={className}
       xmlns="http://www.w3.org/2000/svg"
     >
-      <defs>
-        <linearGradient id={`grad1-${size}`} x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" style={{stopColor: '#3b82f6', stopOpacity: 1}} />
-          <stop offset="100%" style={{stopColor: '#1e40af', stopOpacity: 1}} />
-        </linearGradient>
-      </defs>
-      
-      {/* Background */}
-      <rect width="512" height="512" rx="64" fill={`url(#grad1-${size})`}/>
+      {/* Handrawn style background box */}
+      <rect x="25" y="25" width="462" height="462" rx="20" fill="white" stroke="#2d2d2d" strokeWidth="25" strokeLinejoin="round" className="origin-center rotate-[-3deg]"/>
+      <rect x="25" y="25" width="462" height="462" rx="40" fill="transparent" stroke="#2d2d2d" strokeWidth="15" strokeLinejoin="round" className="origin-center rotate-[2deg]"/>
       
       {/* Chat bubble 1 */}
-      <rect x="80" y="120" width="280" height="80" rx="40" fill="white" opacity="0.9"/>
-      <circle cx="120" cy="160" r="8" fill="#3b82f6"/>
-      <circle cx="160" cy="160" r="8" fill="#3b82f6"/>
-      <circle cx="200" cy="160" r="8" fill="#3b82f6"/>
+      <path d="M 120 160 C 130 110, 360 110, 370 160 C 380 210, 180 230, 160 210 L 100 240 L 120 190 C 100 180, 110 160, 120 160 Z" fill="white" stroke="#2d2d2d" strokeWidth="20" strokeLinejoin="round" strokeLinecap="round" />
+      <circle cx="180" cy="170" r="16" fill="#2d2d2d"/>
+      <circle cx="250" cy="170" r="16" fill="#2d2d2d"/>
+      <circle cx="320" cy="170" r="16" fill="#2d2d2d"/>
       
       {/* Chat bubble 2 */}
-      <rect x="152" y="240" width="280" height="80" rx="40" fill="white" opacity="0.7"/>
-      <rect x="380" y="280" width="20" height="20" rx="10" fill="white"/>
-      <rect x="340" y="280" width="20" height="20" rx="10" fill="white"/>
-      <rect x="300" y="280" width="20" height="20" rx="10" fill="white"/>
-      
-      {/* Message icon */}
-      <path d="M256 360 L200 400 L200 380 L120 380 C110 380 100 370 100 360 L100 340 C100 330 110 320 120 320 L392 320 C402 320 412 330 412 340 L412 360 C412 370 402 380 392 380 L276 380 Z" fill="white"/>
+      <path d="M 390 320 C 370 270, 150 260, 130 310 C 110 360, 310 390, 340 370 L 410 400 L 380 350 C 400 340, 405 325, 390 320 Z" fill="#2d2d2d" stroke="#2d2d2d" strokeWidth="20" strokeLinejoin="round" strokeLinecap="round" />
+      <circle cx="330" cy="330" r="16" fill="white"/>
+      <circle cx="260" cy="330" r="16" fill="white"/>
+      <circle cx="190" cy="330" r="16" fill="white"/>
     </svg>
   );
 };

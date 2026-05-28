@@ -19,22 +19,22 @@ const ConversationsLayout = ({ children }: ConversationsLayoutProps) => {
       <RedirectToHome />
     </Unauthenticated>
     <Authenticated>
-    <div className="h-full flex gap-2 p-0 md:p-2 select-none">
+    <div className="h-full flex gap-4 p-0 md:p-4 select-none">
       {/* Conversation list sidebar */}
-      <div className={cn("w-full flex-1 md:w-fit flex flex-col md:flex-none bg-background/50 md:bg-background border-r border-border/50", {
+      <div className={cn("w-full md:w-80 lg:w-96 flex flex-col md:flex-none border-[3px] border-border bg-white shadow-[6px_6px_0px_0px_#2d2d2d] overflow-hidden -rotate-1 relative z-10", {
         'hidden md:flex': isActive,
-      })}>
+      })} style={{ borderRadius: "var(--radius-wobbly)" }}>
       
-        <div className="flex-grow overflow-y-auto overflow-hidden">
+        <div className="flex-grow overflow-y-auto overflow-hidden p-2">
           <ConversationList/>
         </div>
         </div>
       
       {/* Main content area */}
-      <div className={cn("hidden md:flex flex-1 h-full overflow-hidden", {
-        'flex': isActive,
+      <div className={cn("hidden md:flex flex-1 h-full overflow-hidden rotate-1 mt-2", {
+        'flex w-full': isActive,
       })}>
-        <div className="w-full h-full overflow-hidden bg-background border border-border/50 rounded-lg select-none">
+        <div className="w-full h-full overflow-hidden border-[3px] border-border bg-white shadow-[6px_6px_0px_0px_#2d2d2d] select-none" style={{ borderRadius: "var(--radius-wobbly)" }}>
           {children}
         </div>
       </div>

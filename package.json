@@ -10,6 +10,8 @@
   },
   "dependencies": {
     "@clerk/nextjs": "^6.22.0",
+    "@fontsource/kalam": "^5.2.8",
+    "@fontsource/patrick-hand": "^5.2.8",
     "@hookform/resolvers": "^5.1.1",
     "@radix-ui/react-avatar": "^1.1.10",
     "@radix-ui/react-context-menu": "^2.2.15",

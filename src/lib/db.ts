@@ -1,4 +1,4 @@
-import Dexie, { type EntityTable } from 'dexie';
+import Dexie, { type EntityTable } from "dexie";
 
 interface ChatMessage {
   id: string; // Primary key - simple string
@@ -10,21 +10,28 @@ interface ChatMessage {
   timestamp: number;
   isDeleted?: boolean;
   creationTime?: number; // Store Convex _creationTime
-  status: 'pending' | 'sent' | 'error';
+  status: "pending" | "sent" | "error";
 }
 
-const db = new Dexie('JustChatting') as Dexie & {
-  messages: EntityTable<ChatMessage, 'id'>;
+interface CryptoKeyRecord {
+  id: "me";
+  privateKey: CryptoKey;
+  publicKeyBase64: string;
+}
+
+const db = new Dexie("JustChatting") as Dexie & {
+  messages: EntityTable<ChatMessage, "id">;
+  cryptoKey: EntityTable<CryptoKeyRecord, "id">;
 };
 
 db.version(1).stores({
-  messages: 'id, _id, conversationId, senderId, timestamp, status'
+  messages: "id, _id, conversationId, senderId, timestamp, status",
 });
 
 db.version(2).stores({
-  messages: 'id, _id, conversationId, senderId, timestamp, status',
-  cryptoKey : 'id'
+  messages: "id, _id, conversationId, senderId, timestamp, status",
+  cryptoKey: "id",
 });
 
-export type { ChatMessage };
+export type { ChatMessage, CryptoKeyRecord };
 export { db };

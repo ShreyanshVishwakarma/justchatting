@@ -9,67 +9,69 @@ import ChatInput from './_components/ChatInput'
 import { useLiveQuery } from "dexie-react-hooks"
 import { db } from "@/lib/db"; 
 
+export type DexieId<TableName extends string> = string & { __brand: TableName };
+type MessageId = DexieId<"messages">;
 
 const syncToLocal = async (messagesLive: any[]) => {
-  if (!messagesLive || messagesLive.length === 0) {
-    return;
-  }
+  if (!messagesLive || messagesLive.length === 0) return;
 
   try {
-    // Clone to prevent race conditions
     const serverMessages = [...messagesLive];
     
-    // Get ALL local messages for this conversation
-    const localMessages = await db.messages
-      .where('conversationId')
-      .equals(serverMessages[0].conversationId as string)
-      .toArray();
-    
-    // Create maps for efficient lookups
-    const serverMessageMap = new Map(serverMessages.map(msg => [msg._id, msg]));
-    const localMessageMap = new Map(localMessages.map(msg => [msg._id, msg]));
-    
-    const upsertOperations = [];
-    const deleteOperations = [];
-    
-    //  Add new server messages that don't exist locally
-    for (const serverMsg of serverMessages) {
-      if (!localMessageMap.has(serverMsg._id)) {
-        // This is a new message from the server - add it locally
-        upsertOperations.push(
-          db.messages.put({
-            id: serverMsg._id,
-            _id: serverMsg._id,
-            ...serverMsg,
-            status: 'sent'
-          })
-        );
-      } else {
-        // Update existing message
-        upsertOperations.push(
-          db.messages.update(serverMsg._id, {
-            ...serverMsg,
-            status: 'sent'
-          })
-        );
-      }
-    }
-    
-    // 2. Handle deleted messages
-    for (const localMsg of localMessages) {
-    
+    // 1. Open a single, isolated atomic write transaction
+    await db.transaction('rw', db.messages, async () => {
       
-      if (!serverMessageMap.has(localMsg._id)) {
-        deleteOperations.push(db.messages.delete(localMsg._id as string));
+      // Extract all incoming server IDs
+      const serverIds = serverMessages.map(msg => msg._id);
+
+      // Fetch ONLY the local messages that share these exact server IDs
+      const existingLocalMessages = await db.messages
+        .where('_id')
+        .anyOf(serverIds)
+        .toArray();
+
+      const localMapByServerId = new Map(existingLocalMessages.map(msg => [msg._id, msg]));
+
+      const itemsToPut: any[] = [];
+
+      for (const serverMsg of serverMessages) {
+        const localMatch = localMapByServerId.get(serverMsg._id);
+
+        // Keep your original client 'id' (primary key) intact if it already exists
+        // This completely prevents UI flickering and maintains component anchoring
+        const localPrimaryKey = localMatch ? localMatch.id : `msg-${Date.now()}-${Math.random()}`;
+
+        itemsToPut.push({
+          ...localMatch,    // Retain any local-only flags if necessary
+          ...serverMsg,     // Overwrite with fresh cloud data
+          id: localPrimaryKey, 
+          _id: serverMsg._id,
+          status: 'sent'    // Finalized server status
+        });
       }
-    }
-    
-    await Promise.all([...upsertOperations, ...deleteOperations]);
-    console.log(`Synced ${serverMessages.length} server messages, added/updated ${upsertOperations.length}, deleted ${deleteOperations.length}`);
+
+      // 2. Perform a single bulk write operation (Highly optimized)
+      if (itemsToPut.length > 0) {
+        await db.messages.bulkPut(itemsToPut);
+      }
+
+      // 3. Handle Deletions safely (Optional)
+      // Only delete local messages if the server explicitly tells you they are gone,
+      // but completely ignore 'pending' messages so they aren't wiped out.
+      const conversationId = serverMessages[0].conversationId;
+      
+      await db.messages
+        .where('conversationId')
+        .equals(conversationId)
+        .filter(localMsg => localMsg.status === 'sent' && !serverIds.includes(localMsg._id))
+        .delete();
+    });
+
+    console.log(`Successfully synced ${serverMessages.length} messages in a single transaction.`);
   } catch (error) {
-    console.error("Error syncing to local:", error);
+    console.error("❌ Error during atomic sync optimization:", error);
   }
-}
+};
 
 export default function ConversationPage({ params} : {
   params : Promise<{ conversationId: Id<"conversations">}>
@@ -81,6 +83,7 @@ export default function ConversationPage({ params} : {
   const newMessage = useMutation(api.message.newMessage);
   const me = useQuery(api.user.getMe);
   const HardDeleteMessageMutation = useMutation(api.message.hardDeleteMessage);
+  const messagesLive  = useQuery(api.messages.get, { conversationID: conversationId, paginationOpts: { numItems: 100, cursor: null } } );
 
   const {
     results: messages,
@@ -103,7 +106,11 @@ export default function ConversationPage({ params} : {
       return [];
     }
   }, [conversationId]) || []; 
-
+  
+  useEffect(() => {
+    syncToLocal(messagesLive?.page ?? []);
+  }, [messagesLive?.page])
+/* 
   useEffect(() => { const syncServerMessages = async () => {
       if (!messages || messages.length === 0) return;
       
@@ -134,8 +141,8 @@ export default function ConversationPage({ params} : {
     }
     syncServerMessages();
   }, [messages,conversationId]); 
-
-  const handleSubmit = async (message: string) => {
+ */
+   const handleSubmit = async (message: string) => {
     if (!me) return;
     
     const tempId = `temp-${Date.now()}-${Math.random()}`;
@@ -163,7 +170,7 @@ export default function ConversationPage({ params} : {
         console.log(" Message sent to server:", serverMessage);
         
         await db.messages.update(tempId, {
-          _id: serverMessage._id as string ,
+          _id: serverMessage._id as string,
           conversationId: conversationId as string,
           senderId: serverMessage.senderId as string,
           content: serverMessage.content,
@@ -173,7 +180,7 @@ export default function ConversationPage({ params} : {
           creationTime: serverMessage._creationTime,
           status: 'sent'
         });
-        await db.messages.delete(tempId);
+        // await db.messages.delete(tempId);
         // await db.messages.put({
         //   id: serverMessage._id as string, 
         //   _id: serverMessage._id as string ,
@@ -185,7 +192,7 @@ export default function ConversationPage({ params} : {
         //   creationTime: serverMessage._creationTime,
         //   status: 'sent'
         // });
-        //
+        
         
         console.log(" Updated local message with server data");
       }
@@ -202,11 +209,17 @@ export default function ConversationPage({ params} : {
         console.error(" Error updating message status:", updateError);
       }
     }
-  }
+  } 
 
-  const handleSoftDeleteMessage = async (messageId: Id<"messages">) => {
+  const handleSoftDeleteMessage = async (messageId: MessageId) => {
     try {
-      await deleteMessageMutation({ messageId });
+      let messageToDelete = await db.messages.get(messageId as string);
+      if (!messageToDelete) {
+        console.warn("Message not found locally for soft delete:", messageId);
+        return;
+      }
+      await db.messages.update(messageId as string, { isDeleted: true });
+      await deleteMessageMutation({ messageId: messageToDelete._id as Id<"messages"> });
       // await db.messages.where('_id').equals(messageId as string).delete();
       console.log(" Message deleted successfully");
     } catch (error) {
@@ -214,10 +227,15 @@ export default function ConversationPage({ params} : {
     }
   }
 
-  const handleHardDeleteMessage = async (messageId: Id<"messages">) => {
+  const handleHardDeleteMessage = async (messageId: MessageId) => {
     try {
-      await HardDeleteMessageMutation({ messageId });
-      await db.messages.where('_id').equals(messageId as string).delete();
+      let messageToDelete = await db.messages.get(messageId as string);
+      if (!messageToDelete) {
+        console.warn("Message not found locally for soft delete:", messageId);
+        return;
+      }
+      await HardDeleteMessageMutation({ messageId : messageToDelete._id as Id<"messages"> });
+      await db.messages.where('id').equals(messageId as string).delete();
       console.log(" Message deleted successfully");
     } catch (error) {
       console.error(" Error deleting message:", error);

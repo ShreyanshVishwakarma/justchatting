@@ -8,6 +8,10 @@ import MessageContextMenu from "./messageContextMenu";
 import { Send } from "lucide-react";
 import React from "react";
 
+export type DexieId<TableName extends string> = string & { __brand: TableName };
+
+type MessageId = DexieId<"messages">;
+
 type MessageListProps = {
   messages: any[] | undefined; // Use 'any' to accommodate the live query type
   status: string;
@@ -15,8 +19,8 @@ type MessageListProps = {
   messagesEndRef: React.RefObject<HTMLDivElement | null>;
   otherUser: Doc<"users"> | null | undefined;
   me: Doc<"users"> | null | undefined;
-  onSoftDeleteMessage: (messageId: Id<"messages">) => void;
-  onHardDeleteMessage: (messageId: Id<"messages">) => void;
+  onSoftDeleteMessage: (messageId: MessageId) => void;
+  onHardDeleteMessage: (messageId: MessageId) => void;
   onCopyMessage: (messageContent: string) => void;
 };
 
@@ -45,6 +49,14 @@ const MessageList = React.memo(
     console.log("me:", me);
     console.log("messages:", messages);
     console.log("otherUser:", otherUser);
+
+    React.useEffect(() => {
+      // Small timeout to allow the DOM to update before scrolling
+      const timer = setTimeout(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+      }, 100);
+      return () => clearTimeout(timer);
+    }, [messages, messagesEndRef]);
 
     // Handles both _creationTime and timestamp fields, and avoids NaN/Invalid Date
     const formatTime = (msg: any) => {
@@ -150,10 +162,10 @@ const MessageList = React.memo(
               >
                 <MessageContextMenu
                   onSoftDelete={() =>
-                    onSoftDeleteMessage(message._id as Id<"messages">)
+                    onSoftDeleteMessage(message.id as MessageId)
                   }
                   onHardDelete={() =>
-                    onHardDeleteMessage(message._id as Id<"messages">)
+                    onHardDeleteMessage(message.id as MessageId)
                   }
                   onCopy={() => onCopyMessage(message.content)}
                 >

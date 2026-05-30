@@ -13,12 +13,17 @@ interface ChatMessage {
   status: 'pending' | 'sent' | 'error';
 }
 
-const db = new Dexie('ChatApp') as Dexie & {
+const db = new Dexie('JustChatting') as Dexie & {
   messages: EntityTable<ChatMessage, 'id'>;
 };
 
 db.version(1).stores({
   messages: 'id, _id, conversationId, senderId, timestamp, status'
+});
+
+db.version(2).stores({
+  messages: 'id, _id, conversationId, senderId, timestamp, status',
+  cryptoKey : 'id'
 });
 
 export type { ChatMessage };

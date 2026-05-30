@@ -36,6 +36,14 @@ const MessageList = React.memo(
     onHardDeleteMessage,
     onCopyMessage,
   }: MessageListProps) => {
+    React.useEffect(() => {
+      // Small timeout to allow the DOM to update before scrolling
+      const timer = setTimeout(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+      }, 100);
+      return () => clearTimeout(timer);
+    }, [messages, messagesEndRef]);
+
     if (!me || !otherUser) {
       return (
         <div className="flex-1 overflow-y-auto p-4">
@@ -49,14 +57,6 @@ const MessageList = React.memo(
     console.log("me:", me);
     console.log("messages:", messages);
     console.log("otherUser:", otherUser);
-
-    React.useEffect(() => {
-      // Small timeout to allow the DOM to update before scrolling
-      const timer = setTimeout(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-      }, 100);
-      return () => clearTimeout(timer);
-    }, [messages, messagesEndRef]);
 
     // Handles both _creationTime and timestamp fields, and avoids NaN/Invalid Date
     const formatTime = (msg: any) => {

@@ -18,10 +18,14 @@ import { ModeToggle } from "@/components/mode-toggle";
 import { useConversation } from "@/hooks/useConversation";
 import { cn } from "@/lib/utils";
 import { RedirectToHome } from "@/components/shared/RedirectTohome";
+import { useUserOnboarding } from "@/hooks/useUserOnboarding";
 
 const RootLayout = ({ children }: { children: React.ReactNode }) => {
   const pathname = usePathname();
+  const { isSignedIn } = useAuth();
   const { isActive } = useConversation();
+
+  useUserOnboarding(Boolean(isSignedIn));
 
   const navItems = [
     {

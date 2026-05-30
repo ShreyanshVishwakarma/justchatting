@@ -1,133 +1,173 @@
-"use client"
-import React, { use, useEffect, useRef } from 'react'
-import { useMutation, usePaginatedQuery, useQuery } from 'convex/react'
-import { api } from '../../../../../convex/_generated/api'
-import { Id } from '../../../../../convex/_generated/dataModel'
-import ChatHeader from './_components/ChatHeader'
-import MessageList from './_components/MessageList'
-import ChatInput from './_components/ChatInput'
-import { useLiveQuery } from "dexie-react-hooks"
-import { db } from "@/lib/db"; 
+"use client";
+import React, { useEffect, useRef } from "react";
+import { useMutation, usePaginatedQuery, useQuery } from "convex/react";
+import { api } from "../../../../../convex/_generated/api";
+import { Id } from "../../../../../convex/_generated/dataModel";
+import ChatHeader from "./_components/ChatHeader";
+import MessageList from "./_components/MessageList";
+import ChatInput from "./_components/ChatInput";
+import { useLiveQuery } from "dexie-react-hooks";
+import { db } from "@/lib/db";
+import { encryptMessage } from "@/lib/encrypt";
+import { decryptMessage } from "@/lib/decrypt";
+import { generateAndStoreUserKeys } from "@/lib/cryptoService";
+import { useParams } from "next/navigation";
 
 export type DexieId<TableName extends string> = string & { __brand: TableName };
 type MessageId = DexieId<"messages">;
 
-const syncToLocal = async (messagesLive: any[]) => {
+const syncToLocal = async (
+  messagesLive: any[],
+  currentUserId?: string,
+  otherUserPublicKey?: string,
+) => {
   if (!messagesLive || messagesLive.length === 0) return;
 
   try {
     const serverMessages = [...messagesLive];
-    
-    // 1. Open a single, isolated atomic write transaction
-    await db.transaction('rw', db.messages, async () => {
-      
-      // Extract all incoming server IDs
-      const serverIds = serverMessages.map(msg => msg._id);
+    const serverIds = serverMessages.map((msg) => msg._id);
 
-      // Fetch ONLY the local messages that share these exact server IDs
-      const existingLocalMessages = await db.messages
-        .where('_id')
-        .anyOf(serverIds)
-        .toArray();
+    // Fetch ONLY the local messages that share these exact server IDs
+    const existingLocalMessages = await db.messages
+      .where("_id")
+      .anyOf(serverIds)
+      .toArray();
 
-      const localMapByServerId = new Map(existingLocalMessages.map(msg => [msg._id, msg]));
+    const localMapByServerId = new Map(
+      existingLocalMessages.map((msg) => [msg._id, msg]),
+    );
 
-      const itemsToPut: any[] = [];
-
-      for (const serverMsg of serverMessages) {
+    // Decrypt outside the transaction to avoid PrematureCommitError
+    const itemsToPut = await Promise.all(
+      serverMessages.map(async (serverMsg) => {
         const localMatch = localMapByServerId.get(serverMsg._id);
 
-        // Keep your original client 'id' (primary key) intact if it already exists
-        // This completely prevents UI flickering and maintains component anchoring
-        const localPrimaryKey = localMatch ? localMatch.id : `msg-${Date.now()}-${Math.random()}`;
+        const localPrimaryKey = localMatch
+          ? localMatch.id
+          : `msg-${Date.now()}-${Math.random()}`;
 
-        itemsToPut.push({
-          ...localMatch,    // Retain any local-only flags if necessary
-          ...serverMsg,     // Overwrite with fresh cloud data
-          id: localPrimaryKey, 
+        const {
+          iv,
+          encryptedBlob,
+          senderPublicKey,
+          ...serverMsgWithoutCrypto
+        } = serverMsg as any;
+
+        const isMine = currentUserId && serverMsg.senderId === currentUserId;
+        const keyForDecrypt = isMine ? otherUserPublicKey : senderPublicKey;
+
+        let decryptedContent = localMatch?.content ?? "";
+        try {
+          if (!localMatch && encryptedBlob && iv && keyForDecrypt) {
+            decryptedContent = await decryptMessage(
+              encryptedBlob,
+              iv,
+              keyForDecrypt,
+            );
+          } else if (!localMatch && (!encryptedBlob || !iv)) {
+            decryptedContent = "🔒 [Invalid encrypted payload]";
+          } else if (!localMatch && !keyForDecrypt) {
+            decryptedContent = "🔒 [Missing decrypt key]";
+          }
+        } catch (error) {
+          console.error("❌ Error decrypting message during sync:", error);
+        }
+
+        return {
+          ...localMatch,
+          ...serverMsgWithoutCrypto,
+          content: decryptedContent,
+          id: localPrimaryKey,
           _id: serverMsg._id,
-          status: 'sent'    // Finalized server status
-        });
-      }
+          status: "sent",
+        };
+      }),
+    );
 
-      // 2. Perform a single bulk write operation (Highly optimized)
+    await db.transaction("rw", db.messages, async () => {
       if (itemsToPut.length > 0) {
         await db.messages.bulkPut(itemsToPut);
       }
 
-      // 3. Handle Deletions safely (Optional)
-      // Only delete local messages if the server explicitly tells you they are gone,
-      // but completely ignore 'pending' messages so they aren't wiped out.
       const conversationId = serverMessages[0].conversationId;
-      
       await db.messages
-        .where('conversationId')
+        .where("conversationId")
         .equals(conversationId)
-        .filter(localMsg => localMsg.status === 'sent' && !serverIds.includes(localMsg._id))
+        .filter(
+          (localMsg) =>
+            localMsg.status === "sent" && !serverIds.includes(localMsg._id),
+        )
         .delete();
     });
 
-    console.log(`Successfully synced ${serverMessages.length} messages in a single transaction.`);
+    console.log(
+      `Successfully synced ${serverMessages.length} messages in a single transaction.`,
+    );
   } catch (error) {
     console.error("❌ Error during atomic sync optimization:", error);
   }
 };
 
-export default function ConversationPage({ params} : {
-  params : Promise<{ conversationId: Id<"conversations">}>
-}) {
-  const { conversationId } = use(params);
-  const otherUser = useQuery(api.conversations.getOtherUser, { conversationId });
-  const deleteMessageMutation = useMutation(api.message.deleteMessage); 
+export default function ConversationPage() {
+  const params = useParams<{ conversationId: string }>();
+  const conversationId = params.conversationId as Id<"conversations">;
+  const otherUser = useQuery(api.conversations.getOtherUser, {
+    conversationId,
+  });
+  const deleteMessageMutation = useMutation(api.message.deleteMessage);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const newMessage = useMutation(api.message.newMessage);
   const me = useQuery(api.user.getMe);
   const HardDeleteMessageMutation = useMutation(api.message.hardDeleteMessage);
-  const messagesLive  = useQuery(api.messages.get, { conversationID: conversationId, paginationOpts: { numItems: 100, cursor: null } } );
+  const messagesLive = useQuery(api.messages.get, {
+    conversationID: conversationId,
+    paginationOpts: { numItems: 100, cursor: null },
+  });
 
   const {
     results: messages,
     status,
-    loadMore
+    loadMore,
   } = usePaginatedQuery(
     api.messages.get,
-    { conversationID: conversationId},
-    { initialNumItems: 100 }
-  )
+    { conversationID: conversationId },
+    { initialNumItems: 100 },
+  );
 
-  const rawMessagesLocal = useLiveQuery(async () => {
-    try{
-      return await db.messages
-        .where('conversationId')
-        .equals(conversationId as string)
-        .sortBy("timestamp");
-    }catch (error) {
-      console.error("Error fetching local messages:", error);
-      return [];
-    }
-  }, [conversationId]) || []; 
-  
+  const rawMessagesLocal =
+    useLiveQuery(async () => {
+      try {
+        return await db.messages
+          .where("conversationId")
+          .equals(conversationId as string)
+          .sortBy("timestamp");
+      } catch (error) {
+        console.error("Error fetching local messages:", error);
+        return [];
+      }
+    }, [conversationId]) || [];
+
   useEffect(() => {
-    syncToLocal(messagesLive?.page ?? []);
-  }, [messagesLive?.page])
-/* 
+    syncToLocal(messagesLive?.page ?? [], me?._id, otherUser?.publicKey);
+  }, [messagesLive?.page, me?._id, otherUser?.publicKey]);
+  /*
   useEffect(() => { const syncServerMessages = async () => {
       if (!messages || messages.length === 0) return;
-      
+
       try {
         const transformedMessages = messages.map(msg => ({
-          id: msg._id, 
+          id: msg._id,
           _id: msg._id as string,
           conversationId: conversationId as string,
           senderId: msg.senderId as string,
           content: msg.content,
           isEdited: msg.isEdited || false,
-          timestamp: msg._creationTime, 
+          timestamp: msg._creationTime,
           isDeleted: msg.isDeleted || false,
           creationTime: msg._creationTime,
           status: 'sent' as const
         }));
-        
+
         // await db.messages.bulkPut(transformedMessages);
         //this was the old way, but it was causing issues with deleted messages
 // idk how to send clone of treanformedMessages to this function ...... what if treansformedMessages updates in between
@@ -140,13 +180,13 @@ export default function ConversationPage({ params} : {
       }
     }
     syncServerMessages();
-  }, [messages,conversationId]); 
+  }, [messages,conversationId]);
  */
-   const handleSubmit = async (message: string) => {
+  const handleSubmit = async (message: string) => {
     if (!me) return;
-    
+
     const tempId = `temp-${Date.now()}-${Math.random()}`;
-    
+
     try {
       // 1. Add optimistic message to local storage
       await db.messages.add({
@@ -156,33 +196,43 @@ export default function ConversationPage({ params} : {
         senderId: me._id as string,
         content: message,
         timestamp: Date.now(),
-        status: 'pending'
+        status: "pending",
       });
 
       console.log(" Added optimistic message to local storage");
+      const recipientPublicKey = otherUser?.publicKey;
+      if (!recipientPublicKey) {
+        throw new Error(
+          "Cannot encrypt message: recipient public key is missing",
+        );
+      }
 
-      const serverMessage = await newMessage({ 
-        conversationId, 
-        content: message 
+      const { encryptedBlob, iv } = await encryptMessage(
+        message,
+        recipientPublicKey,
+      );
+      const senderPublicKey = await generateAndStoreUserKeys();
+      const serverMessage = await newMessage({
+        conversationId,
+        encryptedBlob,
+        iv,
+        senderPublicKey,
       });
 
       if (serverMessage) {
         console.log(" Message sent to server:", serverMessage);
-        
+
         await db.messages.update(tempId, {
           _id: serverMessage._id as string,
-          conversationId: conversationId as string,
-          senderId: serverMessage.senderId as string,
-          content: serverMessage.content,
           isDeleted: serverMessage.isDeleted || false,
           isEdited: serverMessage.isEdited || false,
           timestamp: serverMessage._creationTime,
           creationTime: serverMessage._creationTime,
-          status: 'sent'
+          status: "sent",
         });
         // await db.messages.delete(tempId);
         // await db.messages.put({
-        //   id: serverMessage._id as string, 
+        //   id: serverMessage._id as string,
         //   _id: serverMessage._id as string ,
         //   conversationId: conversationId as string,
         //   senderId: serverMessage.senderId as string,
@@ -192,24 +242,22 @@ export default function ConversationPage({ params} : {
         //   creationTime: serverMessage._creationTime,
         //   status: 'sent'
         // });
-        
-        
+
         console.log(" Updated local message with server data");
       }
-
     } catch (error) {
       console.error("❌ Error sending message:", error);
-      
+
       try {
         await db.messages.update(tempId, {
-          status: 'error'
+          status: "error",
         });
         console.log("✅ Marked message as error");
       } catch (updateError) {
         console.error(" Error updating message status:", updateError);
       }
     }
-  } 
+  };
 
   const handleSoftDeleteMessage = async (messageId: MessageId) => {
     try {
@@ -219,13 +267,15 @@ export default function ConversationPage({ params} : {
         return;
       }
       await db.messages.update(messageId as string, { isDeleted: true });
-      await deleteMessageMutation({ messageId: messageToDelete._id as Id<"messages"> });
+      await deleteMessageMutation({
+        messageId: messageToDelete._id as Id<"messages">,
+      });
       // await db.messages.where('_id').equals(messageId as string).delete();
       console.log(" Message deleted successfully");
     } catch (error) {
       console.error(" Error deleting message:", error);
     }
-  }
+  };
 
   const handleHardDeleteMessage = async (messageId: MessageId) => {
     try {
@@ -234,24 +284,29 @@ export default function ConversationPage({ params} : {
         console.warn("Message not found locally for soft delete:", messageId);
         return;
       }
-      await HardDeleteMessageMutation({ messageId : messageToDelete._id as Id<"messages"> });
-      await db.messages.where('id').equals(messageId as string).delete();
+      await HardDeleteMessageMutation({
+        messageId: messageToDelete._id as Id<"messages">,
+      });
+      await db.messages
+        .where("id")
+        .equals(messageId as string)
+        .delete();
       console.log(" Message deleted successfully");
     } catch (error) {
       console.error(" Error deleting message:", error);
     }
-  }
+  };
 
   const handleCopyMessage = (messageContent: string) => {
-    
-    navigator.clipboard.writeText(messageContent)
+    navigator.clipboard
+      .writeText(messageContent)
       .then(() => {
         console.log(" Message copied to clipboard");
       })
       .catch((error) => {
         console.error("Error copying message:", error);
       });
-  }
+  };
 
   // Filter out temp messages that have a matching real message
   // const filteredMessages = React.useMemo(() => {
@@ -263,20 +318,17 @@ export default function ConversationPage({ params} : {
   // }, [messagesLocal]);
 
   // console.log("Page component rendering");
-  // console.log("messagesLocal:", messagesLocal); 
+  // console.log("messagesLocal:", messagesLocal);
   // console.log("me:", me);
 
-
-
-const memoMe = React.useMemo(() => {
-  return me;
-}, [me]);
-
+  const memoMe = React.useMemo(() => {
+    return me;
+  }, [me]);
 
   return (
     <div className="flex flex-col h-full">
       <ChatHeader otherUser={otherUser} />
-      <MessageList 
+      <MessageList
         messages={rawMessagesLocal}
         status={status}
         loadMore={loadMore}
@@ -289,5 +341,5 @@ const memoMe = React.useMemo(() => {
       />
       <ChatInput handleSubmit={handleSubmit} />
     </div>
-  )
+  );
 }

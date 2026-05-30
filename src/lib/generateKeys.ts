@@ -17,10 +17,10 @@ function arrayBufferToBase64(buffer: ArrayBuffer): string {
   return btoa(binary);
 }
 
-export async function generateAndStoreKeys(): Promise<LocalKeyRecord> {
+export async function generateAndStoreKeys(): Promise<string> {
   const existingKeys = await db.cryptoKey.get("me");
   if (existingKeys) {
-    return existingKeys as LocalKeyRecord;
+    return (existingKeys as LocalKeyRecord).publicKeyBase64;
   }
 
   if (typeof window === "undefined" || !window.crypto?.subtle) {
@@ -32,12 +32,12 @@ export async function generateAndStoreKeys(): Promise<LocalKeyRecord> {
       name: "ECDH",
       namedCurve: "P-256",
     },
-    true,
+    false,
     ["deriveKey", "deriveBits"],
   );
 
   const publicKeyBuffer = await window.crypto.subtle.exportKey(
-    "raw",
+    "spki", // standard public key infraformat
     keyPair.publicKey,
   );
   const keyRecord: LocalKeyRecord = {
@@ -47,5 +47,6 @@ export async function generateAndStoreKeys(): Promise<LocalKeyRecord> {
   };
 
   await db.cryptoKey.put(keyRecord);
-  return keyRecord;
+
+  return keyRecord.publicKeyBase64;
 }

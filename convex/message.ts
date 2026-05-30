@@ -5,7 +5,9 @@ import { mutation } from "./_generated/server";
 export const newMessage = mutation({
   args: {
     conversationId: v.id("conversations"),
-    content: v.string(),
+    encryptedBlob: v.string(),
+    iv: v.string(), // Initialization vector (IV) for encrypted content
+    senderPublicKey: v.string(),
   },
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
@@ -16,7 +18,7 @@ export const newMessage = mutation({
     const user = await getUserbyTokenIdentifier({
       ctx,
       tokenIdentifier: identity.subject,
-    })
+    });
 
     if (!user) {
       throw new ConvexError("User not found");
@@ -25,18 +27,20 @@ export const newMessage = mutation({
     const message = {
       conversationId: args.conversationId,
       senderId: user._id,
-      content: args.content,
+      encryptedBlob: args.encryptedBlob,
+      senderPublicKey: args.senderPublicKey,
       timestamp: Date.now(),
+      iv: args.iv,
     };
 
     const messageId = await ctx.db.insert("messages", message);
-    
+
     // Update the last message in the conversation
     await ctx.db.patch(args.conversationId, { lastMessageId: messageId });
 
     return await ctx.db.get(messageId);
   },
-})
+});
 
 //soft  delete
 export const deleteMessage = mutation({
@@ -52,7 +56,7 @@ export const deleteMessage = mutation({
     const user = await getUserbyTokenIdentifier({
       ctx,
       tokenIdentifier: identity.subject,
-    })
+    });
 
     if (!user) {
       throw new ConvexError("User not found");
@@ -60,23 +64,24 @@ export const deleteMessage = mutation({
 
     const message = await ctx.db.get(args.messageId);
     if (!message || message.senderId !== user._id) {
-      throw new ConvexError("Message not found or you do not have permission to delete it");
+      throw new ConvexError(
+        "Message not found or you do not have permission to delete it",
+      );
     }
 
     await ctx.db.patch(args.messageId, {
       isDeleted: true,
       isEdited: true, // Mark as edited to avoid confusion
-      content: "",
+      encryptedBlob: "",
     });
   },
 });
 
-
 export const hardDeleteMessage = mutation({
-  args:{
+  args: {
     messageId: v.id("messages"),
   },
-  handler: async (ctx , args) => {
+  handler: async (ctx, args) => {
     const identify = await ctx.auth.getUserIdentity();
     if (!identify) {
       throw new ConvexError("Not authenticated");
@@ -84,19 +89,21 @@ export const hardDeleteMessage = mutation({
     const user = await getUserbyTokenIdentifier({
       ctx,
       tokenIdentifier: identify.subject,
-    })
+    });
     if (!user) {
       throw new ConvexError("User not found");
     }
     const message = await ctx.db.get(args.messageId);
-    if(!message || message.senderId !== user._id) {
-      throw new ConvexError("Message not found or you do not have permission to delete it");
+    if (!message || message.senderId !== user._id) {
+      throw new ConvexError(
+        "Message not found or you do not have permission to delete it",
+      );
     }
-    
+
     await ctx.db.delete(args.messageId);
 
     await ctx.db.patch(message.conversationId, {
-      lastMessageId: undefined
-    });  
-  }
+      lastMessageId: undefined,
+    });
+  },
 });

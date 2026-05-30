@@ -33,5 +33,12 @@ db.version(2).stores({
   cryptoKey: "id",
 });
 
+// Bump version to force creation of cryptoKey store on existing installs
+// that previously opened the DB without it.
+db.version(3).stores({
+  messages: "id, _id, conversationId, senderId, timestamp, status",
+  cryptoKey: "id",
+});
+
 export type { ChatMessage, CryptoKeyRecord };
 export { db };

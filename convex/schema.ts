@@ -12,6 +12,19 @@ export default defineSchema({
     .index("by_email", ["email"])
     .index("by_tokenIdentifier", ["tokenIdentifier"]),
 
+  userKeys: defineTable({
+    userId: v.id("users"),
+    encryptedPrivateKey: v.string(),
+    keyDerivation: v.object({
+      salt: v.string(), // 16 byte rand number (base64)
+      iv: v.string(),
+      iterations: v.number(),
+      kdf: v.literal("pbkdf2"),
+      hash: v.literal("SHA-256"),
+    }),
+    keyVersion: v.optional(v.number()), // optional, for future key rotation
+  }).index("by_userId", ["userId"]),
+
   requests: defineTable({
     senderId: v.id("users"),
     recieverId: v.id("users"),

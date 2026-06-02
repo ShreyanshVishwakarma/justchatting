@@ -19,6 +19,7 @@ import type * as conversations from "../conversations.js";
 import type * as crons from "../crons.js";
 import type * as friends from "../friends.js";
 import type * as http from "../http.js";
+import type * as keys from "../keys.js";
 import type * as message from "../message.js";
 import type * as messages from "../messages.js";
 import type * as request from "../request.js";
@@ -40,6 +41,7 @@ declare const fullApi: ApiFromModules<{
   crons: typeof crons;
   friends: typeof friends;
   http: typeof http;
+  keys: typeof keys;
   message: typeof message;
   messages: typeof messages;
   request: typeof request;

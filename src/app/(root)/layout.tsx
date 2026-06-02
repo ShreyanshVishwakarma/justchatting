@@ -1,9 +1,8 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import { Authenticated, Unauthenticated } from "convex/react";
 import { UserButton, useAuth } from "@clerk/nextjs";
-import { Card } from "@/components/ui/card";
 import {
   Tooltip,
   TooltipContent,
@@ -24,8 +23,18 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => {
   const pathname = usePathname();
   const { isSignedIn } = useAuth();
   const { isActive } = useConversation();
+  const router = useRouter();
+  const cryptoStatus = useUserOnboarding(Boolean(isSignedIn));
 
-  useUserOnboarding(Boolean(isSignedIn));
+  useEffect(() => {
+    if (!isSignedIn) return;
+    if (cryptoStatus === "needs_setup") {
+      router.push("/onboarding/setup");
+    }
+    if (cryptoStatus === "needs_recovery") {
+      router.push("/onboarding/recover");
+    }
+  }, [cryptoStatus, isSignedIn, router]);
 
   const navItems = [
     {

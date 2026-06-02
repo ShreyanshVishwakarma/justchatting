@@ -1,34 +1,53 @@
 import { useEffect, useState } from "react";
-import { useMutation } from "convex/react";
+import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
-import { generateAndStoreUserKeys } from "@/lib/cryptoService";
+import { db } from "@/lib/db";
 
-export function useUserOnboarding(isAuthenticated: boolean) {
-  const [isOnboarded, setIsOnboarded] = useState(false);
-  const syncPublicKeyToCloud = useMutation(api.user.updatePublicKey);
+export type CryptoStatus =
+  | "loading"
+  | "ready"
+  | "needs_setup"
+  | "needs_recovery";
+
+export function useUserOnboarding(isAuthenticated: boolean): CryptoStatus {
+  const [cryptoStatus, setCryptoStatus] = useState<CryptoStatus>("loading");
+  const me = useQuery(api.user.getMe);
 
   useEffect(() => {
-    const runOnboardingSetup = async () => {
-      if (!isAuthenticated || isOnboarded) return;
+    const checkCryptoState = async () => {
+      if (!isAuthenticated || !me) {
+        setCryptoStatus("loading");
+        return;
+      }
 
       try {
-        console.log("🔒 Initializing device cryptography keys...");
+        const localKeyRecord = await db.cryptoKey.get("me");
+        const hasLocalKeys = !!localKeyRecord;
+        const hasCloudKey = !!me.publicKey;
 
-        // 1) Generate keys locally (or load existing ones from Dexie)
-        const publicKeyBase64 = await generateAndStoreUserKeys();
-
-        // 2) Publish public key string to Convex cloud database
-        await syncPublicKeyToCloud({ publicKey: publicKeyBase64 });
-
-        console.log("🚀 Device identity initialized and shared successfully.");
-        setIsOnboarded(true);
+        if (!hasCloudKey && !hasLocalKeys) {
+          setCryptoStatus("needs_setup");
+        } else if (hasCloudKey && !hasLocalKeys) {
+          setCryptoStatus("needs_recovery");
+        } else if (hasCloudKey && hasLocalKeys) {
+          setCryptoStatus("ready");
+        } else {
+          console.warn(
+            "Cryptographic desync detected. Purging local orphans...",
+          );
+          await db.cryptoKey.delete("me");
+          setCryptoStatus("needs_setup");
+        }
       } catch (error) {
-        console.error("❌ Onboarding Cryptography Setup Failed:", error);
+        console.error(
+          "Failed to evaluate cryptographic storage health:",
+          error,
+        );
       }
     };
 
-    runOnboardingSetup();
-  }, [isAuthenticated, isOnboarded, syncPublicKeyToCloud]);
+    checkCryptoState();
+  }, [isAuthenticated, me]);
 
-  return isOnboarded;
+  return cryptoStatus;
 }

@@ -32,11 +32,11 @@ export async function generateAndStoreKeys(): Promise<string> {
       name: "ECDH",
       namedCurve: "P-256",
     },
-    false,
+    true,
     ["deriveKey", "deriveBits"],
   );
 
-  const publicKeyBuffer = await window.crypto.subtle.exportKey(
+  const publicKeyBuffer: ArrayBuffer = await window.crypto.subtle.exportKey(
     "spki", // standard public key infraformat
     keyPair.publicKey,
   );

@@ -9,8 +9,40 @@ export type KeyDerivationParams = {
   hash: "SHA-256";
 };
 
+export type RecoveryKit = {
+  version: 1;
+  createdAt: string;
+  seedPhrase: string;
+  publicKey: string;
+  encryptedPrivateKey: string;
+  keyDerivation: KeyDerivationParams;
+};
+
 export async function generateAndStoreUserKeys(): Promise<string> {
   return generateAndStoreKeys();
+}
+
+export async function clearLocalEncryptionData(): Promise<void> {
+  await db.transaction("rw", db.cryptoKey, db.messages, async () => {
+    await db.cryptoKey.clear();
+    await db.messages.clear();
+  });
+}
+
+export function downloadRecoveryKit(recoveryKit: RecoveryKit): void {
+  const blob = new Blob([JSON.stringify(recoveryKit, null, 2)], {
+    type: "application/json",
+  });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `justchatting-recovery-kit-${new Date()
+    .toISOString()
+    .slice(0, 10)}.json`;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
 }
 
 // Helper: Convert Base64 string to ArrayBuffer
@@ -111,6 +143,32 @@ export async function importPrivateKey(
     true,
     ["deriveKey", "deriveBits"],
   );
+}
+
+export async function getPublicKeyFromPrivateKey(
+  privateKey: CryptoKey,
+): Promise<string> {
+  const privateJwk = await window.crypto.subtle.exportKey("jwk", privateKey);
+  if (!privateJwk.x || !privateJwk.y || !privateJwk.crv || !privateJwk.kty) {
+    throw new Error("Recovered private key does not contain a public component");
+  }
+
+  const publicKey = await window.crypto.subtle.importKey(
+    "jwk",
+    {
+      kty: privateJwk.kty,
+      crv: privateJwk.crv,
+      x: privateJwk.x,
+      y: privateJwk.y,
+      ext: true,
+    },
+    { name: "ECDH", namedCurve: "P-256" },
+    true,
+    [],
+  );
+
+  const spki = await window.crypto.subtle.exportKey("spki", publicKey);
+  return arrayBufferToBase64(spki);
 }
 
 export async function encryptPrivateKeyWithPassphrase(

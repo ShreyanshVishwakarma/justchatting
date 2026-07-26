@@ -57,6 +57,9 @@ export default defineSchema({
     encryptedBlob: v.string(),
     iv: v.string(),
     senderPublicKey: v.string(),
+    // Retains the exact recipient key used for encryption so the sender can
+    // decrypt their own historical message after a recipient rotates keys.
+    recipientPublicKey: v.optional(v.string()),
     isEdited: v.optional(v.boolean()),
     isDeleted: v.optional(v.boolean()),
     timestamp: v.number(),

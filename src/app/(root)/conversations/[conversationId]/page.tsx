@@ -12,6 +12,8 @@ import { encryptMessage } from "@/lib/encrypt";
 import { decryptMessage } from "@/lib/decrypt";
 import { generateAndStoreUserKeys } from "@/lib/cryptoService";
 import { useParams } from "next/navigation";
+import { useAuth } from "@clerk/nextjs";
+import { useUserOnboarding } from "@/hooks/useUserOnboarding";
 
 export type DexieId<TableName extends string> = string & { __brand: TableName };
 type MessageId = DexieId<"messages">;
@@ -50,23 +52,28 @@ const syncToLocal = async (
           iv,
           encryptedBlob,
           senderPublicKey,
+          recipientPublicKey,
           ...serverMsgWithoutCrypto
         } = serverMsg as any;
 
         const isMine = currentUserId && serverMsg.senderId === currentUserId;
-        const keyForDecrypt = isMine ? otherUserPublicKey : senderPublicKey;
+        const keyForDecrypt = isMine
+          ? recipientPublicKey ?? otherUserPublicKey
+          : senderPublicKey;
+        const needsDecryption =
+          !localMatch || localMatch.content.startsWith("🔒 [");
 
         let decryptedContent = localMatch?.content ?? "";
         try {
-          if (!localMatch && encryptedBlob && iv && keyForDecrypt) {
+          if (needsDecryption && encryptedBlob && iv && keyForDecrypt) {
             decryptedContent = await decryptMessage(
               encryptedBlob,
               iv,
               keyForDecrypt,
             );
-          } else if (!localMatch && (!encryptedBlob || !iv)) {
+          } else if (needsDecryption && (!encryptedBlob || !iv)) {
             decryptedContent = "🔒 [Invalid encrypted payload]";
-          } else if (!localMatch && !keyForDecrypt) {
+          } else if (needsDecryption && !keyForDecrypt) {
             decryptedContent = "🔒 [Missing decrypt key]";
           }
         } catch (error) {
@@ -89,15 +96,7 @@ const syncToLocal = async (
         await db.messages.bulkPut(itemsToPut);
       }
 
-      const conversationId = serverMessages[0].conversationId;
-      await db.messages
-        .where("conversationId")
-        .equals(conversationId)
-        .filter(
-          (localMsg) =>
-            localMsg.status === "sent" && !serverIds.includes(localMsg._id),
-        )
-        .delete();
+
     });
 
     console.log(
@@ -110,6 +109,9 @@ const syncToLocal = async (
 
 export default function ConversationPage() {
   const params = useParams<{ conversationId: string }>();
+  const { isSignedIn } = useAuth();
+  const cryptoStatus = useUserOnboarding(Boolean(isSignedIn));
+  const hasUsableCryptoKey = cryptoStatus === "ready";
   const conversationId = params.conversationId as Id<"conversations">;
   const otherUser = useQuery(api.conversations.getOtherUser, {
     conversationId,
@@ -119,10 +121,7 @@ export default function ConversationPage() {
   const newMessage = useMutation(api.message.newMessage);
   const me = useQuery(api.user.getMe);
   const HardDeleteMessageMutation = useMutation(api.message.hardDeleteMessage);
-  const messagesLive = useQuery(api.messages.get, {
-    conversationID: conversationId,
-    paginationOpts: { numItems: 100, cursor: null },
-  });
+
 
   const {
     results: messages,
@@ -148,8 +147,9 @@ export default function ConversationPage() {
     }, [conversationId]) || [];
 
   useEffect(() => {
-    syncToLocal(messagesLive?.page ?? [], me?._id, otherUser?.publicKey);
-  }, [messagesLive?.page, me?._id, otherUser?.publicKey]);
+    if (!hasUsableCryptoKey) return;
+    syncToLocal(messages, me?._id, otherUser?.publicKey);
+  }, [hasUsableCryptoKey, messages, me?._id, otherUser?.publicKey]);
   /*
   useEffect(() => { const syncServerMessages = async () => {
       if (!messages || messages.length === 0) return;
@@ -183,7 +183,7 @@ export default function ConversationPage() {
   }, [messages,conversationId]);
  */
   const handleSubmit = async (message: string) => {
-    if (!me) return;
+    if (!me || !hasUsableCryptoKey) return;
 
     const tempId = `temp-${Date.now()}-${Math.random()}`;
 
@@ -217,6 +217,7 @@ export default function ConversationPage() {
         encryptedBlob,
         iv,
         senderPublicKey,
+        recipientPublicKey,
       });
 
       if (serverMessage) {
@@ -339,7 +340,15 @@ export default function ConversationPage() {
         onHardDeleteMessage={handleHardDeleteMessage}
         onCopyMessage={handleCopyMessage}
       />
-      <ChatInput handleSubmit={handleSubmit} />
+      <ChatInput
+        handleSubmit={handleSubmit}
+        disabled={!hasUsableCryptoKey}
+        placeholder={
+          hasUsableCryptoKey
+            ? "say something..."
+            : "Encryption key unavailable — recover your key to continue"
+        }
+      />
     </div>
   );
 }

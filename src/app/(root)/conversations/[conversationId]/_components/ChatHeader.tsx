@@ -1,6 +1,9 @@
 "use client";
 
+import { useRouter } from "next/navigation";
+import { ArrowLeft, LockKeyhole, MoreHorizontal } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -8,189 +11,39 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { Doc } from "../../../../../../convex/_generated/dataModel";
-import {
-  ArrowLeft,
-  MoreVertical,
-  Phone,
-  Video,
-  PhoneCall,
-  VideoIcon,
-  Info,
-  UserX,
-  Volume2,
-} from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
 
-type ChatHeaderProps = {
-  otherUser: Doc<"users"> | null | undefined;
-};
+type ChatHeaderProps = { otherUser: Doc<"users"> | null | undefined };
 
-const ChatHeader = ({ otherUser }: ChatHeaderProps) => {
+export default function ChatHeader({ otherUser }: ChatHeaderProps) {
   const router = useRouter();
-  const [isOnline] = useState(true); // You can connect this to real online status later
-
-  const handleVoiceCall = () => {
-    // Implement voice call functionality
-    console.log("Starting voice call with", otherUser?.username);
-  };
-
-  const handleVideoCall = () => {
-    // Implement video call functionality
-    console.log("Starting video call with", otherUser?.username);
-  };
-
-  const handleUserInfo = () => {
-    console.log("Show user info for", otherUser?.username);
-  };
-
-  const handleBlockUser = () => {
-    console.log("Block user", otherUser?.username);
-  };
+  const name = otherUser?.username ?? "Loading…";
 
   return (
-    <div className="relative">
-      {/* Beautiful gradient background */}
-
-      <div
-        className="relative flex items-center gap-3 p-4 border-b-[3px] border-border bg-white mt-1 relative z-10"
-        style={{ borderBottomStyle: "dashed" }}
-      >
-        {/* Back button for mobile */}
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => router.push("/conversations")}
-          className="md:hidden hover:bg-primary/10 transition-colors duration-200"
-        >
-          <ArrowLeft className="h-5 w-5" />
-        </Button>
-
-        {/* User Avatar and Info */}
-        <div className="flex items-center gap-3 flex-1 min-w-0">
-          <div className="relative">
-            <Avatar
-              className="h-11 w-11 hover:rotate-[5deg] transition-all duration-300 border-[3px] border-border shadow-[2px_2px_0_0_#2d2d2d]"
-              style={{ borderRadius: "var(--radius-wobbly-sm)" }}
-            >
-              <AvatarImage src={otherUser?.imageURL} />
-              <AvatarFallback className="bg-primary/10 text-primary font-bold">
-                {otherUser?.username?.charAt(0)?.toUpperCase() || "?"}
-              </AvatarFallback>
-            </Avatar>
-          </div>
-
-          <div className="flex-1 min-w-0">
-            <h2 className="font-[family-name:var(--font-patrick-hand)] font-semibold text-xl text-foreground truncate hover:text-foreground/80 transition-colors duration-200">
-              {otherUser?.username || "Loading..."}
-            </h2>
-            <div className="flex items-center gap-1">
-              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-              <p className="text-sm text-muted-foreground">
-                {isOnline ? "Active now" : "Last seen recently"}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Action buttons */}
-        <div className="flex items-center gap-1">
-          <TooltipProvider>
-            {/* Voice Call Button */}
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={handleVoiceCall}
-                  className="h-10 w-10 hover:bg-green-500/10 hover:text-green-600 transition-all duration-200 group hidden xs:flex"
-                >
-                  <Phone className="h-5 w-5 group-hover:scale-110 transition-transform duration-200" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Voice call</p>
-              </TooltipContent>
-            </Tooltip>
-
-            {/* Video Call Button */}
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={handleVideoCall}
-                  className="h-10 w-10 hover:bg-blue-500/10 hover:text-blue-600 transition-all duration-200 group hidden sm:flex"
-                >
-                  <Video className="h-5 w-5 group-hover:scale-110 transition-transform duration-200" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Video call</p>
-              </TooltipContent>
-            </Tooltip>
-
-            {/* More Options Dropdown */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-10 w-10 hover:bg-primary/10 transition-all duration-200 group"
-                >
-                  <MoreVertical className="h-5 w-5 group-hover:scale-110 transition-transform duration-200" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                align="end"
-                className="w-48 bg-white border-[3px] border-border shadow-[4px_4px_0_0_#2d2d2d] font-[family-name:var(--font-patrick-hand)]"
-                style={{ borderRadius: "var(--radius-wobbly-sm)" }}
-              >
-                {/* Mobile voice/video calls */}
-                <DropdownMenuItem
-                  onClick={handleVoiceCall}
-                  className="sm:hidden"
-                >
-                  <Phone className="mr-2 h-4 w-4 text-green-600" />
-                  Voice Call
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={handleVideoCall}
-                  className="xs:hidden"
-                >
-                  <Video className="mr-2 h-4 w-4 text-blue-600" />
-                  Video Call
-                </DropdownMenuItem>
-
-                <DropdownMenuItem onClick={handleUserInfo}>
-                  <Info className="mr-2 h-4 w-4" />
-                  User Info
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <Volume2 className="mr-2 h-4 w-4" />
-                  Mute Notifications
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={handleBlockUser}
-                  className="text-destructive focus:text-destructive"
-                >
-                  <UserX className="mr-2 h-4 w-4" />
-                  Block User
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </TooltipProvider>
+    <header className="flex shrink-0 items-center gap-3 border-b border-border bg-card px-4 py-3 sm:px-6">
+      <Button variant="ghost" size="icon" className="md:hidden" onClick={() => router.push("/conversations")} aria-label="Back to conversations">
+        <ArrowLeft className="size-5" />
+      </Button>
+      <Avatar className="size-10 border-2 border-border">
+        <AvatarImage src={otherUser?.imageURL} />
+        <AvatarFallback>{name.charAt(0).toUpperCase()}</AvatarFallback>
+      </Avatar>
+      <div className="min-w-0 flex-1">
+        <h1 className="truncate font-[family-name:var(--font-kalam)] text-xl font-bold">{name}</h1>
+        <div className="mt-0.5 flex items-center gap-1.5 text-xs text-muted-foreground">
+          <LockKeyhole className="size-3.5" />
+          <span>End-to-end encrypted</span>
         </div>
       </div>
-    </div>
+      <Badge variant="outline" className="hidden sm:inline-flex">Private chat</Badge>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" size="icon" aria-label="Conversation options"><MoreHorizontal className="size-5" /></Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem onSelect={() => navigator.clipboard.writeText(window.location.href)}>Copy conversation link</DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </header>
   );
-};
-
-export default ChatHeader;
+}

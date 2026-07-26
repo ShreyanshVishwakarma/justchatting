@@ -24,18 +24,31 @@ export function useUserOnboarding(isAuthenticated: boolean): CryptoStatus {
         const localKeyRecord = await db.cryptoKey.get("me");
         const hasLocalKeys = !!localKeyRecord;
         const hasCloudKey = !!me.publicKey;
+        const localKeyMatchesCloud =
+          !!localKeyRecord && localKeyRecord.publicKeyBase64 === me.publicKey;
 
         if (!hasCloudKey && !hasLocalKeys) {
           setCryptoStatus("needs_setup");
         } else if (hasCloudKey && !hasLocalKeys) {
           setCryptoStatus("needs_recovery");
-        } else if (hasCloudKey && hasLocalKeys) {
+        } else if (hasCloudKey && hasLocalKeys && localKeyMatchesCloud) {
           setCryptoStatus("ready");
+        } else if (hasCloudKey && hasLocalKeys) {
+          // IndexedDB is shared by browser profiles, so a key from another
+          // account/device must never be used for this account's ciphertext.
+          await db.transaction("rw", db.cryptoKey, db.messages, async () => {
+            await db.cryptoKey.clear();
+            await db.messages.clear();
+          });
+          setCryptoStatus("needs_recovery");
         } else {
           console.warn(
             "Cryptographic desync detected. Purging local orphans...",
           );
-          await db.cryptoKey.delete("me");
+          await db.transaction("rw", db.cryptoKey, db.messages, async () => {
+            await db.cryptoKey.clear();
+            await db.messages.clear();
+          });
           setCryptoStatus("needs_setup");
         }
       } catch (error) {

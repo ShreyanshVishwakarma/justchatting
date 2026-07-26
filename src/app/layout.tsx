@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
-import { Kalam, Patrick_Hand } from "next/font/google";
+import "@fontsource/kalam/400.css";
+import "@fontsource/kalam/700.css";
+import "@fontsource/patrick-hand/400.css";
 import ConvexClientComponent from "@/providers/convexClientComponent";
 import { ClerkProvider } from "@clerk/nextjs";
 
@@ -8,17 +10,7 @@ import { ThemeProvider } from "@/providers/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
 
-const kalam = Kalam({
-  variable: "--font-kalam",
-  subsets: ["latin"],
-  weight: ["400", "700"],
-});
 
-const patrickHand = Patrick_Hand({
-  variable: "--font-patrick-hand",
-  subsets: ["latin"],
-  weight: "400",
-});
 
 export const metadata: Metadata = {
   title: "JustChatting",
@@ -57,7 +49,7 @@ export default function RootLayout({
       <ConvexClientComponent>
          <html lang="en" suppressHydrationWarning={true}>
            <body
-            className={`${kalam.variable} ${patrickHand.variable} antialiased`}
+            className="antialiased"
                >
             <ThemeProvider 
               attribute="class"

@@ -67,6 +67,10 @@ export const getOtherUser = query({
       )
       .collect();
 
+    if (!members.some((member) => member.userId === currentUser._id)) {
+      throw new ConvexError("You do not have access to this conversation");
+    }
+
     const otherMember = members.find(
       (member) => member.userId !== currentUser._id,
     );

@@ -1,19 +1,26 @@
 "use client";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-import { Doc, Id } from "../../../../../../convex/_generated/dataModel";
-import MessageContextMenu from "./messageContextMenu";
-import { Send } from "lucide-react";
 import React from "react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Bubble, BubbleContent } from "@/components/ui/bubble";
+import {
+  Message,
+  MessageAvatar,
+  MessageContent,
+  MessageFooter,
+  MessageGroup,
+} from "@/components/ui/message";
+import { Button } from "@/components/ui/button";
+import { LockKeyhole, Send } from "lucide-react";
+import { Doc } from "../../../../../../convex/_generated/dataModel";
+import MessageContextMenu from "./messageContextMenu";
+import { cn } from "@/lib/utils";
 
 export type DexieId<TableName extends string> = string & { __brand: TableName };
-
 type MessageId = DexieId<"messages">;
 
 type MessageListProps = {
-  messages: any[] | undefined; // Use 'any' to accommodate the live query type
+  messages: any[] | undefined;
   status: string;
   loadMore: (numItems: number) => void;
   messagesEndRef: React.RefObject<HTMLDivElement | null>;
@@ -24,186 +31,107 @@ type MessageListProps = {
   onCopyMessage: (messageContent: string) => void;
 };
 
-const MessageList = React.memo(
-  ({
-    messages,
-    status,
-    loadMore,
-    messagesEndRef,
-    me,
-    otherUser,
-    onSoftDeleteMessage,
-    onHardDeleteMessage,
-    onCopyMessage,
-  }: MessageListProps) => {
-    React.useEffect(() => {
-      // Small timeout to allow the DOM to update before scrolling
-      const timer = setTimeout(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-      }, 100);
-      return () => clearTimeout(timer);
-    }, [messages, messagesEndRef]);
+const formatTime = (message: any) => {
+  const timestamp = message.creationTime ?? message._creationTime ?? message.timestamp;
+  if (!timestamp) return "";
+  return new Date(Number(timestamp)).toLocaleTimeString([], {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+};
 
-    if (!me || !otherUser) {
-      return (
-        <div className="flex-1 overflow-y-auto p-4">
-          <div className="flex items-center justify-center h-full">
-            <p className="text-muted-foreground">Loading conversation...</p>
-          </div>
-        </div>
-      );
-    }
+const MessageList = React.memo(function MessageList({
+  messages,
+  status,
+  loadMore,
+  messagesEndRef,
+  me,
+  otherUser,
+  onSoftDeleteMessage,
+  onHardDeleteMessage,
+  onCopyMessage,
+}: MessageListProps) {
+  React.useEffect(() => {
+    const timer = window.setTimeout(() => {
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+    }, 100);
+    return () => window.clearTimeout(timer);
+  }, [messages, messagesEndRef]);
 
-    console.log("me:", me);
-    console.log("messages:", messages);
-    console.log("otherUser:", otherUser);
+  if (!me || !otherUser) {
+    return <div className="flex flex-1 items-center justify-center text-sm text-muted-foreground">Loading conversation…</div>;
+  }
 
-    // Handles both _creationTime and timestamp fields, and avoids NaN/Invalid Date
-    const formatTime = (msg: any) => {
-      const raw = msg._creationTime ?? msg.timestamp;
-      if (!raw || isNaN(Number(raw))) return "";
-      const date = new Date(Number(raw));
-      if (isNaN(date.getTime())) return "";
-      return date.toLocaleTimeString([], {
-        hour: "2-digit",
-        minute: "2-digit",
-      });
-    };
-
-    if (!messages || messages.length === 0) {
-      return (
-        <div className="flex-1 overflow-y-auto p-4 space-y-4">
-          <div className="flex flex-col items-center justify-center h-full">
-            <div className="text-center space-y-4 max-w-md">
-              <div
-                className="w-16 h-16 bg-[#fdf8c1] border-[3px] border-border shadow-[3px_3px_0_0_#2d2d2d] flex items-center justify-center mx-auto rotate-[-4deg]"
-                style={{ borderRadius: "var(--radius-wobbly-sm)" }}
-              >
-                <Send className="h-7 w-7 text-foreground" strokeWidth={1.5} />
-              </div>
-              <div>
-                <h3 className="font-[family-name:var(--font-kalam)] font-bold text-2xl">
-                  nothing sent yet
-                </h3>
-                <p className="font-[family-name:var(--font-patrick-hand)] text-lg text-muted-foreground mt-2 rotate-[-1deg]">
-                  say something — break the ice!
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      );
-    }
-
+  if (!messages?.length) {
     return (
-      <div className="flex-1 overflow-y-auto p-4 space-y-2 message-scroll-fade">
-        {status === "CanLoadMore" && (
-          <div className="flex justify-center py-4">
-            <Button
-              variant="outline"
-              className="border-[3px] border-border shadow-[4px_4px_0_0_#2d2d2d] bg-white rotate-[1deg] hover:-translate-y-1 hover:shadow-[6px_6px_0_0_#2d2d2d] transition-all font-[family-name:var(--font-patrick-hand)] text-lg"
-              style={{ borderRadius: "var(--radius-wobbly-sm)" }}
-              onClick={() => loadMore(10)}
-              size="sm"
-            >
-              Load more messages
-            </Button>
+      <div className="flex flex-1 items-center justify-center p-6">
+        <div className="max-w-sm text-center">
+          <div className="mx-auto mb-4 grid size-12 place-items-center rounded-full bg-muted">
+            <Send className="size-5" />
           </div>
-        )}
-
-        {messages?.map((message, index) => {
-          const isMe = message.senderId === me?._id;
-          const showAvatar =
-            !isMe &&
-            (index === 0 || messages[index - 1]?.senderId !== message.senderId);
-          const isLatestMessage = index === messages.length - 1; // Last in array means latest chronologically
-
-          // Check if we should show timestamp
-          // Show timestamp only for the last message in a sequence from the same sender
-          const nextMessage = messages[index + 1]; // Next message in chronological order
-          const TIME_THRESHOLD = 5 * 60 * 1000; // 5 minutes in milliseconds
-
-          const showTimestamp =
-            !nextMessage ||
-            nextMessage.senderId !== message.senderId ||
-            nextMessage._creationTime - message._creationTime > TIME_THRESHOLD;
-
-          return (
-            <div
-              key={message.id}
-              className={cn("flex gap-2 max-w-[85%] sm:max-w-[70%]", {
-                "ml-auto flex-row-reverse": isMe,
-                "mr-auto": !isMe,
-              })}
-            >
-              {!isMe && (
-                <Avatar
-                  className={cn(
-                    "h-10 w-10 mt-1 border-[3px] border-border shadow-[2px_2px_0_0_#2d2d2d] rotate-[-5deg]",
-                    {
-                      invisible: !showAvatar,
-                    },
-                  )}
-                  style={{ borderRadius: "var(--radius-wobbly-sm)" }}
-                >
-                  <AvatarImage src={otherUser?.imageURL} />
-                  <AvatarFallback className="text-xs">
-                    {otherUser?.username?.charAt(0)?.toUpperCase() || "?"}
-                  </AvatarFallback>
-                </Avatar>
-              )}
-
-              <div
-                className={cn("flex flex-col", {
-                  "items-end": isMe,
-                  "items-start": !isMe,
-                  "space-y-0.5": showTimestamp,
-                })}
-              >
-                <MessageContextMenu
-                  onSoftDelete={() =>
-                    onSoftDeleteMessage(message.id as MessageId)
-                  }
-                  onHardDelete={() =>
-                    onHardDeleteMessage(message.id as MessageId)
-                  }
-                  onCopy={() => onCopyMessage(message.content)}
-                >
-                  <div
-                    className={cn(
-                      "px-4 py-3 max-w-full break-words border-[3px] border-border shadow-[4px_4px_0_0_#2d2d2d] font-[family-name:var(--font-patrick-hand)] text-base",
-                      {
-                        "bg-[#ffeb3b] text-foreground rotate-[-1deg] -translate-x-1":
-                          isMe,
-                        "bg-white text-foreground rotate-[1deg] translate-x-1":
-                          !isMe,
-                      },
-                    )}
-                    style={{ borderRadius: "var(--radius-wobbly)" }}
-                  >
-                    {message.isDeleted ? (
-                      <span className="text-muted-foreground italic">
-                        [this message has been deleted]
-                      </span>
-                    ) : (
-                      <p className="leading-relaxed">{message.content}</p>
-                    )}
-                  </div>
-                </MessageContextMenu>
-                {showTimestamp && (
-                  <span className="font-[family-name:var(--font-patrick-hand)] text-sm text-foreground/60 px-2 mt-1">
-                    {formatTime(message)}
-                  </span>
-                )}
-              </div>
-            </div>
-          );
-        })}
-
-        <div ref={messagesEndRef} />
+          <h2 className="font-[family-name:var(--font-kalam)] text-2xl font-bold">Start the conversation</h2>
+          <p className="mt-1 text-sm text-muted-foreground">Messages are encrypted before they leave your device.</p>
+        </div>
       </div>
     );
-  },
-);
+  }
+
+  return (
+    <div className="flex-1 overflow-y-auto px-4 py-5 sm:px-6">
+      {status === "CanLoadMore" && (
+        <div className="mb-6 flex justify-center">
+          <Button variant="outline" size="sm" onClick={() => loadMore(50)}>Load earlier messages</Button>
+        </div>
+      )}
+      <MessageGroup className="gap-4">
+        {messages.map((message) => {
+          const isMine = message.senderId === me._id;
+          const locked = message.content?.startsWith("🔒 [");
+          return (
+            <Message key={message.id} align={isMine ? "end" : "start"}>
+              {!isMine && (
+                <MessageAvatar>
+                  <Avatar className="size-8 border border-border">
+                    <AvatarImage src={otherUser.imageURL} />
+                    <AvatarFallback>{otherUser.username?.charAt(0)?.toUpperCase() ?? "?"}</AvatarFallback>
+                  </Avatar>
+                </MessageAvatar>
+              )}
+              <MessageContent>
+                <MessageContextMenu
+                  onSoftDelete={() => onSoftDeleteMessage(message.id as MessageId)}
+                  onHardDelete={() => onHardDeleteMessage(message.id as MessageId)}
+                  onCopy={() => onCopyMessage(message.content)}
+                >
+                  <Bubble align={isMine ? "end" : "start"} variant="outline">
+                    <BubbleContent
+                      className={cn(
+                        "border-2 border-border px-4 py-2.5 font-[family-name:var(--font-patrick-hand)] text-base shadow-[2px_2px_0_0_#2d2d2d]",
+                        isMine
+                          ? "!bg-[#ffeb3b] !text-foreground rounded-2xl rounded-br-md"
+                          : "!bg-white !text-foreground rounded-2xl rounded-bl-md",
+                        locked && "!bg-destructive/10 !text-destructive",
+                      )}
+                    >
+                      {message.isDeleted ? (
+                        <span className="italic text-muted-foreground">This message was deleted</span>
+                      ) : locked ? (
+                        <span className="flex items-center gap-2"><LockKeyhole className="size-4 shrink-0" />{message.content}</span>
+                      ) : (
+                        message.content
+                      )}
+                    </BubbleContent>
+                  </Bubble>
+                </MessageContextMenu>
+                <MessageFooter>{formatTime(message)}{isMine && message.status === "pending" ? " · Sending" : ""}</MessageFooter>
+              </MessageContent>
+            </Message>
+          );
+        })}
+      </MessageGroup>
+      <div ref={messagesEndRef} />
+    </div>
+  );
+});
 
 export default MessageList;

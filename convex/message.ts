@@ -8,6 +8,7 @@ export const newMessage = mutation({
     encryptedBlob: v.string(),
     iv: v.string(), // Initialization vector (IV) for encrypted content
     senderPublicKey: v.string(),
+    recipientPublicKey: v.string(),
   },
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
@@ -24,11 +25,43 @@ export const newMessage = mutation({
       throw new ConvexError("User not found");
     }
 
+    if (!user.publicKey || args.senderPublicKey !== user.publicKey) {
+      throw new ConvexError(
+        "Your local encryption key does not match your account. Recover your key before sending messages.",
+      );
+    }
+
+    const conversation = await ctx.db.get(args.conversationId);
+    if (!conversation) {
+      throw new ConvexError("Conversation not found");
+    }
+
+    const members = await ctx.db
+      .query("conversationMembers")
+      .withIndex("by_conversationId", (q) =>
+        q.eq("conversationId", args.conversationId),
+      )
+      .collect();
+    if (!members.some((member) => member.userId === user._id)) {
+      throw new ConvexError("You do not have access to this conversation");
+    }
+
+    const recipientMember = members.find((member) => member.userId !== user._id);
+    const recipient = recipientMember
+      ? await ctx.db.get(recipientMember.userId)
+      : null;
+    if (!recipient?.publicKey || recipient.publicKey !== args.recipientPublicKey) {
+      throw new ConvexError(
+        "The recipient encryption key changed. Refresh the conversation and try again.",
+      );
+    }
+
     const message = {
       conversationId: args.conversationId,
       senderId: user._id,
       encryptedBlob: args.encryptedBlob,
-      senderPublicKey: args.senderPublicKey,
+      senderPublicKey: user.publicKey,
+      recipientPublicKey: args.recipientPublicKey,
       timestamp: Date.now(),
       iv: args.iv,
     };

@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useAuth } from "@clerk/nextjs";
 import { useQuery } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
@@ -11,6 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { db } from "@/lib/db";
 import {
   decryptPrivateKeyWithPassphrase,
+  getPublicKeyFromPrivateKey,
   KeyDerivationParams,
 } from "@/lib/cryptoService";
 import { useUserOnboarding } from "@/hooks/useUserOnboarding";
@@ -65,16 +67,23 @@ export default function OnboardingRecoverPage() {
         keyDerivation,
       );
 
+      const recoveredPublicKey = await getPublicKeyFromPrivateKey(privateKey);
+      if (recoveredPublicKey !== me.publicKey) {
+        throw new Error("Recovery key does not match this account");
+      }
+
       await db.cryptoKey.put({
         id: "me",
         privateKey,
-        publicKeyBase64: me.publicKey,
+        publicKeyBase64: recoveredPublicKey,
       });
 
       router.push("/conversations");
     } catch (err) {
       console.error(err);
-      setError("Invalid seed phrase. Please try again.");
+      setError(
+        "This seed phrase does not match the current encryption identity for this account.",
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -116,6 +125,16 @@ export default function OnboardingRecoverPage() {
           >
             {isSubmitting ? "Recovering..." : "Recover & Continue"}
           </Button>
+
+          <div className="border-t border-border pt-4 text-sm">
+            <p className="mb-2 text-muted-foreground">
+              Lost your seed phrase? Your existing encrypted chats cannot be
+              recovered, but you can securely start over with a new identity.
+            </p>
+            <Button variant="destructive" asChild>
+              <Link href="/onboarding/reset">I lost my phrase — start over</Link>
+            </Button>
+          </div>
         </CardContent>
       </Card>
     </div>

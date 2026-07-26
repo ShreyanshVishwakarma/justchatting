@@ -22,8 +22,9 @@ export async function decryptMessage(
 
     const decoder = new TextDecoder();
     return decoder.decode(decryptedBuffer);
-  } catch (error) {
-    console.error("Failed to decrypt message payload:", error);
+  } catch {
+    // AES-GCM intentionally rejects ciphertext encrypted for another key,
+    // modified ciphertext, and malformed payloads without revealing which.
     return "🔒 [Undecryptable Message - Missing or mismatched keys]";
   }
 }

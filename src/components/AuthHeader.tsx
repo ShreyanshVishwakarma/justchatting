@@ -7,13 +7,13 @@ import {
 } from "@clerk/nextjs";
 import { Authenticated, Unauthenticated, AuthLoading } from "convex/react";
 
-import { MessageCircle } from "lucide-react";
+import { JustChattingLogo } from "@/components/JustChattingLogo";
 
-// Logo component with gradient text effect
+// Logo component
 const Logo = () => (
   <div className="flex items-center space-x-2 group">
-    <div className="bg-white border-[3px] border-border p-2 shadow-[2px_2px_0_0_#2d2d2d] transition-all duration-300 rotate-[-5deg] group-hover:rotate-[5deg]" style={{ borderRadius: "var(--radius-wobbly-sm)" }}>
-      <MessageCircle className="h-6 w-6 text-foreground" />
+    <div className="transition-all duration-300 rotate-[-5deg] group-hover:rotate-[5deg]">
+      <JustChattingLogo size={40} />
     </div>
     <div className="flex flex-col">
       <h1 className="text-3xl font-bold font-[family-name:var(--font-kalam)] text-foreground">

@@ -1,37 +1,51 @@
-import React from 'react';
+import React from "react";
 
 interface JustChattingLogoProps {
   size?: number;
   className?: string;
 }
 
-export const JustChattingLogo: React.FC<JustChattingLogoProps> = ({ 
-  size = 24, 
-  className = "" 
+export const JustChattingLogo: React.FC<JustChattingLogoProps> = ({
+  size = 24,
+  className = "",
 }) => {
   return (
-    <svg 
-      width={size} 
-      height={size} 
-      viewBox="0 0 512 512" 
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 512 512"
       className={className}
       xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
     >
-      {/* Handrawn style background box */}
-      <rect x="25" y="25" width="462" height="462" rx="20" fill="white" stroke="#2d2d2d" strokeWidth="25" strokeLinejoin="round" className="origin-center rotate-[-3deg]"/>
-      <rect x="25" y="25" width="462" height="462" rx="40" fill="transparent" stroke="#2d2d2d" strokeWidth="15" strokeLinejoin="round" className="origin-center rotate-[2deg]"/>
-      
-      {/* Chat bubble 1 */}
-      <path d="M 120 160 C 130 110, 360 110, 370 160 C 380 210, 180 230, 160 210 L 100 240 L 120 190 C 100 180, 110 160, 120 160 Z" fill="white" stroke="#2d2d2d" strokeWidth="20" strokeLinejoin="round" strokeLinecap="round" />
-      <circle cx="180" cy="170" r="16" fill="#2d2d2d"/>
-      <circle cx="250" cy="170" r="16" fill="#2d2d2d"/>
-      <circle cx="320" cy="170" r="16" fill="#2d2d2d"/>
-      
-      {/* Chat bubble 2 */}
-      <path d="M 390 320 C 370 270, 150 260, 130 310 C 110 360, 310 390, 340 370 L 410 400 L 380 350 C 400 340, 405 325, 390 320 Z" fill="#2d2d2d" stroke="#2d2d2d" strokeWidth="20" strokeLinejoin="round" strokeLinecap="round" />
-      <circle cx="330" cy="330" r="16" fill="white"/>
-      <circle cx="260" cy="330" r="16" fill="white"/>
-      <circle cx="190" cy="330" r="16" fill="white"/>
+      {/* Big hand-drawn chat bubble */}
+      <path
+        d="M 196 118 C 268 100, 342 116, 362 168 C 382 224, 372 302, 328 324 C 298 338, 240 330, 226 336 L 172 384 L 208 320 C 188 300, 138 258, 136 208 C 134 158, 150 130, 196 118 Z"
+        fill="#fdf8c1"
+        stroke="#2d2d2d"
+        strokeWidth="22"
+        strokeLinejoin="round"
+        strokeLinecap="round"
+      />
+
+      {/* Doodle face */}
+      <g fill="#2d2d2d">
+        <circle cx="214" cy="236" r="16" />
+        <circle cx="302" cy="236" r="16" />
+      </g>
+      <path
+        d="M 228 282 Q 258 300 290 284"
+        fill="none"
+        stroke="#2d2d2d"
+        strokeWidth="18"
+        strokeLinecap="round"
+      />
+
+      {/* Blush (correction red) */}
+      <g fill="#ff4d4d" opacity="0.85">
+        <path d="M 196 258 q 10 8 0 18 q -10 -10 0 -18 z" />
+        <path d="M 320 258 q 10 8 0 18 q -10 -10 0 -18 z" />
+      </g>
     </svg>
   );
 };

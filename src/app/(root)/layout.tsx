@@ -14,6 +14,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { MessageSquare, Users, PenTool } from "lucide-react";
 import Link from "next/link";
 import { ModeToggle } from "@/components/mode-toggle";
+import { JustChattingLogo } from "@/components/JustChattingLogo";
 import { useConversation } from "@/hooks/useConversation";
 import { cn } from "@/lib/utils";
 import { RedirectToHome } from "@/components/shared/RedirectTohome";
@@ -105,13 +106,8 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => {
                 {/* Logo area */}
                 <div className="flex flex-col items-center mb-8 relative">
                   <div className="absolute -top-4 w-8 h-2 bg-red-400/20 rotate-[-5deg] z-10"></div>
-                  <div
-                    className="w-16 h-16 bg-[#fdf8c1] border-[3px] border-border shadow-[3px_3px_0_0_#2d2d2d] flex flex-col items-center justify-center rotate-2 hover:rotate-[-2deg] transition-transform cursor-pointer"
-                    style={{ borderRadius: "var(--radius-wobbly-sm)" }}
-                  >
-                    <span className="font-bold font-[family-name:var(--font-kalam)] text-2xl leading-none">
-                      JC
-                    </span>
+                  <div className="rotate-2 hover:rotate-[-2deg] transition-transform cursor-pointer">
+                    <JustChattingLogo size={56} />
                   </div>
                 </div>
 

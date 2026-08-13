@@ -18,9 +18,13 @@ export const metadata: Metadata = {
   description: "A modern real-time chat application with friends and conversations",
   manifest: "/manifest.json",
   icons: {
-    icon: "/icons/icon-192x192.png",
-    shortcut: "/icons/icon-192x192.png",
-    apple: "/icons/icon-192x192.png",
+    icon: [
+      { url: "/icons/icon.svg", type: "image/svg+xml" },
+      { url: "/icons/icon-192x192.png", type: "image/png", sizes: "192x192" },
+      { url: "/icons/icon-512x512.png", type: "image/png", sizes: "512x512" },
+    ],
+    shortcut: { url: "/favicon.ico" },
+    apple: [{ url: "/apple-touch-icon.png", type: "image/png" }],
   },
   appleWebApp: {
     capable: true,
@@ -33,9 +37,9 @@ export const metadata: Metadata = {
     "apple-mobile-web-app-status-bar-style": "black-translucent",
     "apple-mobile-web-app-title": "JustChatting",
     "application-name": "JustChatting",
-    "msapplication-TileColor": "#000000",
+    "msapplication-TileColor": "#fdfbf7",
     "msapplication-tap-highlight": "no",
-    "theme-color": "#000000",
+    "theme-color": "#fdfbf7",
   },
 };
 

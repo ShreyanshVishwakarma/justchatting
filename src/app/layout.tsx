@@ -12,10 +12,38 @@ import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
 
 
 
+const siteUrl =
+  process.env.NEXT_PUBLIC_SITE_URL ||
+  (process.env.NODE_ENV === "development"
+    ? "http://localhost:3000"
+    : "https://justchatting-eight.vercel.app");
+
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: "JustChatting",
   keywords: ["just chatting", "chat", "next.js", "react"],
   description: "A modern real-time chat application with friends and conversations",
+  openGraph: {
+    type: "website",
+    url: "/home",
+    siteName: "JustChatting",
+    title: "JustChatting - Chat with Friends",
+    description: "A modern real-time chat application with friends and conversations. Fast, fun, and always connected.",
+    images: [
+      {
+        url: "/og/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "JustChatting - Real-time chat with friends",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "JustChatting - Chat with Friends",
+    description: "A modern real-time chat application with friends and conversations. Fast, fun, and always connected.",
+    images: ["/og/og-image.png"],
+  },
   manifest: "/manifest.json",
   icons: {
     icon: [

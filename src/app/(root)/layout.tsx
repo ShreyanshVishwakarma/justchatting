@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useEffect } from "react";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
 import { Authenticated, Unauthenticated } from "convex/react";
 import { UserButton, useAuth } from "@clerk/nextjs";
 import {
@@ -9,16 +11,67 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Button } from "@/components/ui/button";
-import { usePathname, useRouter } from "next/navigation";
-import { MessageSquare, Users, PenTool } from "lucide-react";
-import Link from "next/link";
-import { ModeToggle } from "@/components/mode-toggle";
-import { JustChattingLogo } from "@/components/JustChattingLogo";
+import { MessageCircle, Users } from "lucide-react";
+import JustChattingLogo from "@/components/JustChattingLogo";
 import { useConversation } from "@/hooks/useConversation";
-import { cn } from "@/lib/utils";
-import { RedirectToHome } from "@/components/shared/RedirectTohome";
 import { useUserOnboarding } from "@/hooks/useUserOnboarding";
+import { RedirectToHome } from "@/components/shared/RedirectTohome";
+import { cn } from "@/lib/utils";
+
+const NAV = [
+  {
+    label: "chats",
+    href: "/conversations",
+    icon: MessageCircle,
+    match: "/conversations",
+  },
+  { label: "pals", href: "/friends", icon: Users, match: "/friends" },
+];
+
+function DoodleNavButton({
+  href,
+  label,
+  icon: Icon,
+  active,
+}: {
+  href: string;
+  label: string;
+  icon: React.ElementType;
+  active: boolean;
+}) {
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Link href={href} aria-label={label} aria-current={active ? "page" : undefined}>
+          <span
+            className={cn(
+              "relative flex size-14 items-center justify-center border-[3px] border-border",
+              active
+                ? "bg-[#ff4d4d] text-white shadow-[2px_2px_0px_0px_#2d2d2d] -rotate-2"
+                : "bg-white text-foreground shadow-[4px_4px_0px_0px_#2d2d2d] rotate-2 hover:bg-[#fdf8c1]"
+            )}
+            style={{ borderRadius: "20px 255px 15px 225px / 255px 15px 225px 15px" }}
+          >
+            {active && (
+              <span className="absolute -left-2.5 top-1/2 size-3.5 -translate-y-1/2 border-[3px] border-border bg-[#ff4d4d]" style={{ borderRadius: "60% 40% 55% 45%" }} />
+            )}
+            <Icon className="size-6" strokeWidth={2.5} />
+          </span>
+          <span className={cn("mt-1 block text-center font-[family-name:var(--font-patrick-hand)] text-base leading-none", active ? "font-bold text-[#ff4d4d]" : "text-foreground/60")}>
+            {label}
+          </span>
+        </Link>
+      </TooltipTrigger>
+      <TooltipContent
+        side="right"
+        sideOffset={14}
+        className="border-[3px] border-border bg-white font-[family-name:var(--font-kalam)] text-lg shadow-[3px_3px_0_0_#2d2d2d]"
+      >
+        {label}
+      </TooltipContent>
+    </Tooltip>
+  );
+}
 
 const RootLayout = ({ children }: { children: React.ReactNode }) => {
   const pathname = usePathname();
@@ -29,28 +82,9 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     if (!isSignedIn) return;
-    if (cryptoStatus === "needs_setup") {
-      router.push("/onboarding/setup");
-    }
-    if (cryptoStatus === "needs_recovery") {
-      router.push("/onboarding/recover");
-    }
+    if (cryptoStatus === "needs_setup") router.push("/onboarding/setup");
+    if (cryptoStatus === "needs_recovery") router.push("/onboarding/recover");
   }, [cryptoStatus, isSignedIn, router]);
-
-  const navItems = [
-    {
-      label: "Chats",
-      href: "/conversations",
-      icon: MessageSquare,
-      active: pathname.includes("/conversations"),
-    },
-    {
-      label: "Pals",
-      href: "/friends",
-      icon: Users,
-      active: pathname.includes("/friends"),
-    },
-  ];
 
   return (
     <>
@@ -59,131 +93,104 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => {
       </Unauthenticated>
       <Authenticated>
         <TooltipProvider>
-          <div className="tone-down flex h-screen w-full flex-col md:flex-row bg-transparent selection:bg-accent selection:text-white">
-            {/* Sidebar Navigation */}
-            <aside
-              className={cn(
-                "flex w-full flex-row justify-around p-2 md:w-[7rem] md:flex-col md:justify-start md:gap-4 order-last md:order-first z-50",
-                {
-                  "hidden md:flex": isActive,
-                },
-              )}
-            >
-              {/* Mobile Navigation Bar */}
-              <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t-4 border-dashed border-border shadow-[0_-4px_0_0_#2d2d2d] pb-safe">
-                <div className="flex items-center justify-around py-2">
-                  {navItems.map((item) => (
-                    <Link key={item.label} href={item.href} className="w-1/3">
-                      <div className="flex flex-col items-center gap-1 p-2">
-                        <div
-                          className={cn(
-                            "flex items-center justify-center w-12 h-12 border-[3px] border-border shadow-[2px_2px_0_0_#2d2d2d] transition-transform",
-                            item.active
-                              ? "bg-accent text-white -translate-y-1"
-                              : "bg-white text-foreground hover:-translate-y-1",
-                          )}
-                          style={{ borderRadius: "var(--radius-wobbly-sm)" }}
-                        >
-                          <item.icon className="w-6 h-6" strokeWidth={2.5} />
-                        </div>
-                      </div>
-                    </Link>
-                  ))}
+          <div
+            className="flex h-dvh w-full flex-col bg-[#fdfbf7] md:flex-row"
+            style={{
+              backgroundImage: "radial-gradient(#e5e0d8 1.2px, transparent 1.2px)",
+              backgroundSize: "22px 22px",
+            }}
+          >
+            {/* ——— desktop doodle rail ——— */}
+            <aside className="z-40 hidden w-24 shrink-0 flex-col items-center border-r-[3px] border-dashed border-border bg-white py-5 shadow-[4px_0_0_0_rgba(45,45,45,0.08)] md:flex">
+              <Link href="/conversations" aria-label="justchat home" className="flex flex-col items-center">
+                <span>
+                  <JustChattingLogo size={48} />
+                </span>
+                <span className="mt-1 font-[family-name:var(--font-kalam)] text-lg font-bold leading-none">
+                  justchat<span className="text-[#ff4d4d]">.</span>
+                </span>
+              </Link>
 
-                  <div className="flex flex-col items-center gap-1 p-2 w-1/3">
-                    <div
-                      className="flex items-center justify-center w-12 h-12 border-[3px] border-border bg-[#fdf8c1] shadow-[2px_2px_0_0_#2d2d2d]"
-                      style={{ borderRadius: "var(--radius-wobbly-sm)" }}
+              <span aria-hidden="true" className="my-5 w-12 border-t-[3px] border-dashed border-border/40" />
+
+              <nav className="flex flex-1 flex-col items-center gap-5" aria-label="primary">
+                {NAV.map((item) => (
+                  <DoodleNavButton
+                    key={item.href}
+                    href={item.href}
+                    label={item.label}
+                    icon={item.icon}
+                    active={pathname.includes(item.match)}
+                  />
+                ))}
+              </nav>
+
+              <div className="flex flex-col items-center gap-2 border-t-[3px] border-dashed border-border/40 pt-4">
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span
+                      className="flex size-14 items-center justify-center border-[3px] border-border bg-[#fdf8c1] shadow-[4px_4px_0px_0px_#2d2d2d]"
+                      style={{ borderRadius: "255px 15px 225px 15px / 15px 225px 15px 255px" }}
                     >
-                      <UserButton />
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Desktop Navigation Sidebar */}
-              <div className="hidden md:flex md:flex-col md:h-full md:w-[7rem] md:py-8 bg-white border-r-4 border-border border-dashed shadow-[4px_0_0_0_#2d2d2d]">
-                {/* Logo area */}
-                <div className="flex flex-col items-center mb-8 relative">
-                  <div className="absolute -top-4 w-8 h-2 bg-red-400/20 rotate-[-5deg] z-10"></div>
-                  <div className="rotate-2 hover:rotate-[-2deg] transition-transform cursor-pointer">
-                    <JustChattingLogo size={56} />
-                  </div>
-                </div>
-
-                {/* Navigation Items */}
-                <div className="flex flex-col gap-6 flex-1 items-center">
-                  {navItems.map((item, i) => {
-                    const rotation =
-                      i % 2 === 0 ? "rotate-[-2deg]" : "rotate-[2deg]";
-                    return (
-                      <Tooltip key={item.label}>
-                        <TooltipTrigger asChild>
-                          <Link href={item.href}>
-                            <div
-                              className={cn(
-                                `relative flex items-center justify-center w-14 h-14 mx-auto border-[3px] border-border shadow-[4px_4px_0_0_#2d2d2d] transition-transform hover:-translate-y-1 active:shadow-none active:translate-y-1 ${rotation}`,
-                                item.active
-                                  ? "bg-accent text-white"
-                                  : "bg-white text-foreground hover:bg-muted",
-                              )}
-                              style={{
-                                borderRadius: "var(--radius-wobbly-sm)",
-                              }}
-                            >
-                              {item.active && (
-                                <div className="absolute -left-3 top-1/2 -translate-y-1/2 w-4 h-4 bg-accent border-[3px] border-border rounded-full" />
-                              )}
-                              <item.icon
-                                className="w-6 h-6"
-                                strokeWidth={2.5}
-                              />
-                            </div>
-                          </Link>
-                        </TooltipTrigger>
-                        <TooltipContent
-                          side="right"
-                          sideOffset={12}
-                          className="border-[3px] border-border shadow-[4px_4px_0_0_#2d2d2d] font-[family-name:var(--font-kalam)] text-lg"
-                          style={{ borderRadius: "var(--radius-wobbly-sm)" }}
-                        >
-                          <p>{item.label}</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    );
-                  })}
-                </div>
-
-                {/* Desktop Bottom Section */}
-                <div className="flex flex-col items-center gap-6 pt-8 border-t-4 border-dashed border-border mt-auto pb-6">
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <div
-                        className="flex items-center justify-center w-14 h-14 border-[3px] border-border bg-[#fdf8c1] shadow-[4px_4px_0_0_#2d2d2d] hover:-translate-y-1 transition-transform rotate-1"
-                        style={{ borderRadius: "var(--radius-wobbly-sm)" }}
-                      >
-                        <div className="scale-125">
-                          <UserButton />
-                        </div>
-                      </div>
-                    </TooltipTrigger>
-                    <TooltipContent
-                      side="right"
-                      sideOffset={12}
-                      className="border-[3px] border-border shadow-[4px_4px_0_0_#2d2d2d] font-[family-name:var(--font-kalam)] text-lg"
-                      style={{ borderRadius: "var(--radius-wobbly-sm)" }}
-                    >
-                      <p>Profile</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </div>
+                      <span className="scale-110">
+                        <UserButton />
+                      </span>
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent side="right" sideOffset={14} className="border-[3px] border-border bg-white font-[family-name:var(--font-kalam)] text-lg shadow-[3px_3px_0_0_#2d2d2d]">
+                    profile
+                  </TooltipContent>
+                </Tooltip>
+                <span className="flex items-center gap-1 font-[family-name:var(--font-patrick-hand)] text-sm text-foreground/50">
+                  <span className="size-2 rounded-full bg-green-500" /> you
+                </span>
               </div>
             </aside>
 
-            {/* Main Content */}
-            <div className="flex-1 overflow-y-auto pb-16 md:pb-0 relative z-0">
-              <div className="h-full w-full">{children}</div>
+            {/* ——— main ——— */}
+            <div className="min-h-0 flex-1 overflow-hidden pb-20 md:pb-0">
+              {children}
             </div>
+
+            {/* ——— mobile doodle dock ——— */}
+            <nav
+              aria-label="primary mobile"
+              className={cn(
+                "fixed inset-x-3 bottom-3 z-50 border-[3px] border-border bg-white px-6 py-2 shadow-[4px_4px_0px_0px_#2d2d2d] md:hidden",
+                isActive && "hidden"
+              )}
+              style={{ borderRadius: "255px 18px 225px 18px / 18px 225px 18px 255px" }}
+            >
+              <div className="flex items-center justify-around">
+                {NAV.map((item) => {
+                  const active = pathname.includes(item.match);
+                  return (
+                    <Link key={item.href} href={item.href} className="flex flex-col items-center gap-0.5 px-4 py-1.5" aria-current={active ? "page" : undefined}>
+                      <span
+                        className={cn(
+                          "flex size-11 items-center justify-center border-[3px] border-border transition-all",
+                          active
+                            ? "bg-[#ff4d4d] text-white shadow-[2px_2px_0_0_#2d2d2d] -rotate-3"
+                            : "bg-white text-foreground rotate-2"
+                        )}
+                        style={{ borderRadius: "20px 255px 15px 225px / 255px 15px 225px 15px" }}
+                      >
+                        <item.icon className="size-5" strokeWidth={2.5} />
+                      </span>
+                      <span className={cn("font-[family-name:var(--font-patrick-hand)] text-base leading-none", active ? "font-bold text-[#ff4d4d]" : "text-foreground/60")}>
+                        {item.label}
+                      </span>
+                    </Link>
+                  );
+                })}
+                <span className="flex flex-col items-center gap-0.5 px-4 py-1.5">
+                  <span className="flex size-11 items-center justify-center border-[3px] border-border bg-[#fdf8c1]" style={{ borderRadius: "255px 15px 225px 15px / 15px 225px 15px 255px" }}>
+                    <UserButton />
+                  </span>
+                  <span className="font-[family-name:var(--font-patrick-hand)] text-base leading-none text-foreground/60">you</span>
+                </span>
+              </div>
+            </nav>
           </div>
         </TooltipProvider>
       </Authenticated>

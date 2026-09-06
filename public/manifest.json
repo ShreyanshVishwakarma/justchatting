@@ -1,7 +1,7 @@
 {
-  "name": "JustChatting - Real-time Chat App",
-  "short_name": "JustChatting",
-  "description": "A modern real-time chat application with friends and conversations",
+  "name": "justchat — doodles 'n chats",
+  "short_name": "justchat",
+  "description": "justchat is a fast, end-to-end encrypted chat app with a hand-drawn heart. no straight lines, no snooping — just chatting.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#fdfbf7",
@@ -68,9 +68,9 @@
   "categories": ["social", "communication"],
   "shortcuts": [
     {
-      "name": "New Conversation",
-      "short_name": "New Chat",
-      "description": "Start a new conversation",
+      "name": "chats",
+      "short_name": "chats",
+      "description": "open your justchat chats",
       "url": "/conversations",
       "icons": [
         {
@@ -80,9 +80,9 @@
       ]
     },
     {
-      "name": "Friends",
-      "short_name": "Friends",
-      "description": "View and manage friends",
+      "name": "pals",
+      "short_name": "pals",
+      "description": "view and manage pals",
       "url": "/friends",
       "icons": [
         {

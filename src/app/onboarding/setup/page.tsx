@@ -7,7 +7,6 @@ import { useMutation, useQuery } from "convex/react";
 import { generateMnemonic } from "@scure/bip39";
 import { wordlist } from "@scure/bip39/wordlists/english.js";
 import { api } from "../../../../convex/_generated/api";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
@@ -19,6 +18,8 @@ import {
   generateAndStoreUserKeys,
 } from "@/lib/cryptoService";
 import { useUserOnboarding } from "@/hooks/useUserOnboarding";
+import { Copy, Dices, KeyRound } from "lucide-react";
+import { DoodleTag, JustchatLockup } from "@/components/brand";
 
 const normalizePhrase = (phrase: string) =>
   phrase.trim().toLowerCase().split(/\s+/).join(" ");
@@ -128,73 +129,74 @@ export default function OnboardingSetupPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-6 bg-background">
-      <Card
-        className="w-full max-w-2xl border-[3px] border-border shadow-[6px_6px_0px_0px_#2d2d2d]"
-        style={{ borderRadius: "var(--radius-wobbly)" }}
-      >
-        <CardHeader>
-          <CardTitle className="text-2xl font-[family-name:var(--font-kalam)]">
-            Save your seed phrase
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <p className="text-muted-foreground font-[family-name:var(--font-patrick-hand)] text-lg">
-            This phrase unlocks your identity on new devices. If you lose it, we
-            can’t recover your messages.
+    <div className="flex min-h-screen items-center justify-center p-4 sm:p-6">
+      <div className="relative w-full max-w-2xl -rotate-[0.4deg] border-[3px] border-border bg-white p-6 shadow-[8px_8px_0px_0px_#2d2d2d] sm:p-8" style={{ borderRadius: "255px 18px 225px 18px / 18px 225px 18px 255px" }}>
+        <span aria-hidden="true" className="absolute left-1/2 top-0 h-5 w-16 -translate-x-1/2 -translate-y-1/2 rotate-[-5deg] border-x-2 border-dashed border-[#2d2d2d]/20 bg-[#2d2d2d]/10" />
+        <JustchatLockup size={34} showTagline />
+        <div className="mt-4">
+          <DoodleTag>🔑 step 1 of 1 — your keys</DoodleTag>
+          <h1 className="mt-2 font-[family-name:var(--font-kalam)] text-4xl font-bold leading-none">
+            save your seed doodle
+          </h1>
+          <p className="mt-2 font-[family-name:var(--font-patrick-hand)] text-lg text-foreground/65">
+            this 12-word phrase unlocks your justchat identity on new devices.
+            lose it and we can&apos;t recover your chats — that&apos;s the deal.
           </p>
+        </div>
 
+        <div className="mt-5 space-y-4">
           <Textarea
             value={normalizedSeed}
             readOnly
-            className="min-h-[120px] text-base font-[family-name:var(--font-patrick-hand)]"
+            aria-label="seed phrase"
+            className="min-h-[110px] bg-[#fdf8c1]/60 font-mono !text-base"
           />
 
-          <div className="flex gap-2">
-            <Button type="button" variant="outline" onClick={handleCopy}>
-              Copy phrase
+          <div className="flex flex-wrap gap-2">
+            <Button type="button" variant="outline" size="sm" onClick={handleCopy}>
+              <Copy className="size-4" /> copy phrase
             </Button>
-            <Button type="button" variant="ghost" onClick={handleRegenerate}>
-              Regenerate
+            <Button type="button" variant="ghost" size="sm" onClick={handleRegenerate}>
+              <Dices className="size-4" /> doodle another
             </Button>
           </div>
 
-          <label className="flex items-start gap-3 rounded border border-border p-3 text-sm">
+          <label className="flex cursor-pointer items-start gap-3 border-2 border-dashed border-border/50 bg-[#fdfbf7] p-3 font-[family-name:var(--font-patrick-hand)] text-lg" style={{ borderRadius: "20px 255px 15px 225px / 255px 15px 225px 15px" }}>
             <input
               type="checkbox"
               checked={downloadKit}
               onChange={(event) => setDownloadKit(event.target.checked)}
-              className="mt-1"
+              className="mt-1.5 size-4 accent-[#ff4d4d]"
             />
             <span>
-              Download a recovery kit after setup. It contains your seed phrase
-              and encrypted private-key backup, so store it offline and never
-              share it.
+              download a recovery kit after setup — seed + encrypted backup for
+              offline safekeeping. never share it.
             </span>
           </label>
 
           <div className="space-y-2">
-            <p className="text-sm text-muted-foreground">
-              Re-enter your seed phrase to confirm:
+            <p className="flex items-center gap-1.5 font-[family-name:var(--font-patrick-hand)] text-lg text-foreground/70">
+              <KeyRound className="size-4" /> re-type the phrase to prove you saved it:
             </p>
             <Input
               value={confirmPhrase}
               onChange={(e) => setConfirmPhrase(e.target.value)}
-              placeholder="Type the phrase exactly"
+              placeholder="type the 12 words exactly…"
+              className="h-12 bg-[#fdfbf7]"
             />
           </div>
 
-          {error && <p className="text-destructive text-sm">{error}</p>}
+          {error && (
+            <p className="border-2 border-[#ff4d4d] bg-[#ff4d4d]/10 px-3 py-2 font-[family-name:var(--font-patrick-hand)] text-lg text-[#ff4d4d]" style={{ borderRadius: "255px 15px 225px 15px / 15px 225px 15px 255px" }}>
+              ✎ {error}
+            </p>
+          )}
 
-          <Button
-            onClick={handleSetup}
-            disabled={isSubmitting}
-            className="w-full"
-          >
-            {isSubmitting ? "Setting up..." : "Confirm & Continue"}
+          <Button onClick={handleSetup} disabled={isSubmitting} className="w-full !bg-[#ff4d4d] !text-white hover:!bg-[#2d2d2d]">
+            {isSubmitting ? "drawing your keys…" : "confirm & start chatting 🎉"}
           </Button>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 }

@@ -1,343 +1,453 @@
-"use client"
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { AuthLoading, Unauthenticated, Authenticated } from "convex/react";
-import Loading from '../../loading';
+"use client";
+
 import { useRouter } from "next/navigation";
-import { useEffect, useState, useMemo } from "react";
-import { Shield, Lock, MessageCircle, Users, Zap, Eye, Heart, CheckCircle, ArrowRight, Fingerprint, PenTool } from "lucide-react";
-import { LucideIcon } from "lucide-react";
+import { useEffect } from "react";
+import { Authenticated, AuthLoading, Unauthenticated } from "convex/react";
+import { SignUpButton } from "@clerk/nextjs";
+import {
+  ArrowRight,
+  Check,
+  Eye,
+  Heart,
+  KeyRound,
+  Lock,
+  MessageCircle,
+  Pencil,
+  Send,
+  Shield,
+  Sparkles,
+  Users,
+  Zap,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  DoodleHeading,
+  DoodleTag,
+  JustchatMark,
+  PaperDots,
+  Squiggle,
+  TapeStrip,
+} from "@/components/brand";
 
-interface FeatureCardProps {
-  icon: LucideIcon;
-  title: string;
-  description: string;
-  delay?: number;
+/* ————— data ————— */
+
+const FEATURES = [
+  {
+    icon: Shield,
+    title: "scrambled by default",
+    body: "every message is encrypted before it leaves your device. the server only ever sees gibberish.",
+    bg: "bg-white",
+    rotate: "-rotate-1",
+    tape: true,
+  },
+  {
+    icon: Zap,
+    title: "stupidly fast",
+    body: "local-first storage means chats open instantly. no spinners, no staring at skeletons.",
+    bg: "bg-[#fdf8c1]",
+    rotate: "rotate-1",
+    tape: false,
+  },
+  {
+    icon: KeyRound,
+    title: "you hold the keys",
+    body: "a seed phrase unlocks your identity on any device. lose it and even we can't peek — that's the point.",
+    bg: "bg-white",
+    rotate: "-rotate-2",
+    tape: false,
+  },
+  {
+    icon: Users,
+    title: "pals, not contacts",
+    body: "add friends by email, accept the doodle-stamped request, and you're chatting. no phone numbers.",
+    bg: "bg-white",
+    rotate: "rotate-2",
+    tape: false,
+  },
+  {
+    icon: Eye,
+    title: "zero snooping",
+    body: "no trackers, no ad profile, no “we value your privacy” banner that lies. justchat can't read a thing.",
+    bg: "bg-[#fdf8c1]",
+    rotate: "-rotate-1",
+    tape: true,
+  },
+  {
+    icon: Heart,
+    title: "human, not corporate",
+    body: "wobbly borders, marker smudges and all. chatting should feel like passing notes, not filing tickets.",
+    bg: "bg-white",
+    rotate: "rotate-1",
+    tape: false,
+  },
+];
+
+const STEPS = [
+  {
+    n: "1",
+    title: "make your mark",
+    body: "sign up, save your 12-word seed doodle, and your keys are born on your device.",
+    emoji: "✏️",
+  },
+  {
+    n: "2",
+    title: "collect some pals",
+    body: "send a request by email. they accept, a private chat appears. that's the whole ceremony.",
+    emoji: "💌",
+  },
+  {
+    n: "3",
+    title: "justchat away",
+    body: "type, send, grin. everything syncs encrypted and stays lightning fast offline too.",
+    emoji: "💬",
+  },
+];
+
+const FAQS = [
+  {
+    q: "how secure is this, really?",
+    a: "messages are encrypted on your device with keys only you hold. the server stores scrambled blobs — useful to exactly nobody but you and your pal.",
+  },
+  {
+    q: "is it actually free?",
+    a: "yep. private 1:1 chats are free. privacy shouldn't cost an arm and a leg (just a pencil).",
+  },
+  {
+    q: "what does local-first mean?",
+    a: "your chat history lives in your browser first (IndexedDB), so it opens instantly and works offline. the cloud is just a synced backup.",
+  },
+  {
+    q: "can anyone read my messages?",
+    a: "no — not us, not your ISP, not a curious database admin. without your seed phrase the data is just noise.",
+  },
+];
+
+/* ————— small pieces ————— */
+
+function ChatMock() {
+  return (
+    <div className="relative mx-auto w-full max-w-sm">
+      {/* bouncing doodle star */}
+      <div
+        aria-hidden="true"
+        className="absolute -left-6 -top-6 hidden size-14 items-center justify-center border-[3px] border-border bg-[#ff4d4d] text-white shadow-[3px_3px_0_0_#2d2d2d] md:flex"
+        style={{ borderRadius: "255px 15px 225px 15px / 15px 225px 15px 255px" }}
+      >
+        <Sparkles className="size-6" strokeWidth={2.5} />
+      </div>
+      {/* hand arrow */}
+      <svg
+        viewBox="0 0 120 60"
+        aria-hidden="true"
+        className="absolute -left-24 top-10 hidden w-24 -rotate-12 lg:block"
+      >
+        <path
+          d="M110 8 C 70 10, 40 20, 12 44 M12 44 l14 -4 M12 44 l4 -14"
+          fill="none"
+          stroke="#2d2d2d"
+          strokeWidth="3"
+          strokeDasharray="7 6"
+          strokeLinecap="round"
+        />
+        <text x="18" y="18" fontSize="13" fill="#2d2d2d" fontFamily="Patrick Hand">
+          try me!
+        </text>
+      </svg>
+
+      <div
+        className="relative rotate-2 border-4 border-border bg-white shadow-[10px_10px_0px_0px_#2d2d2d]"
+        style={{ borderRadius: "255px 18px 225px 18px / 18px 225px 18px 255px" }}
+      >
+        <TapeStrip />
+        <div className="flex items-center justify-between border-b-[3px] border-border bg-[#e5e0d8]/60 px-4 py-3">
+          <div className="flex gap-1.5">
+            <span className="size-3.5 border-2 border-border bg-[#ff4d4d]" style={{ borderRadius: "60% 40% 55% 45%" }} />
+            <span className="size-3.5 border-2 border-border bg-[#ffeb3b]" style={{ borderRadius: "45% 55% 40% 60%" }} />
+            <span className="size-3.5 border-2 border-border bg-green-400" style={{ borderRadius: "55% 45% 60% 40%" }} />
+          </div>
+          <p className="flex items-center gap-1.5 font-[family-name:var(--font-kalam)] text-base font-bold">
+            <JustchatMark size={20} /> just a chat…
+          </p>
+        </div>
+
+        <div
+          className="flex h-64 flex-col gap-3 overflow-hidden p-5"
+          style={{
+            backgroundImage: "radial-gradient(#e5e0d8 1px, transparent 1px)",
+            backgroundSize: "16px 16px",
+          }}
+        >
+          <div className="max-w-[82%] -rotate-1 self-start border-2 border-border bg-white p-3 shadow-[3px_3px_0_0_#2d2d2d]" style={{ borderRadius: "20px 255px 15px 225px / 255px 15px 225px 15px" }}>
+            <p className="font-[family-name:var(--font-patrick-hand)] text-lg leading-snug">psst… look, no straight lines anywhere 👀</p>
+          </div>
+          <div className="max-w-[82%] rotate-1 self-end border-2 border-border bg-[#fdf8c1] p-3 shadow-[3px_3px_0_0_#2d2d2d]" style={{ borderRadius: "255px 15px 225px 15px / 15px 225px 15px 255px" }}>
+            <p className="font-[family-name:var(--font-patrick-hand)] text-lg leading-snug">and nobody can read this but us 🔒</p>
+          </div>
+          <div className="max-w-[70%] -rotate-2 self-start border-2 border-border bg-white p-3 shadow-[3px_3px_0_0_#2d2d2d]" style={{ borderRadius: "20px 255px 15px 225px / 255px 15px 225px 15px" }}>
+            <p className="flex items-center gap-1.5 font-[family-name:var(--font-patrick-hand)] text-lg">
+              <span className="flex gap-1">
+                <span className="size-2 rounded-full bg-foreground" />
+                <span className="size-2 rounded-full bg-foreground" />
+                <span className="size-2 rounded-full bg-foreground" />
+              </span>
+              typing…
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2 border-t-[3px] border-border bg-white p-3">
+          <div className="flex flex-1 items-center border-2 border-dashed border-border/60 bg-[#fdfbf7] px-4 py-2.5 font-[family-name:var(--font-patrick-hand)] text-lg text-foreground/40">
+            say something nice…
+          </div>
+          <span className="flex size-11 items-center justify-center border-2 border-border bg-[#ff4d4d] text-white shadow-[2px_2px_0_0_#2d2d2d]">
+            <Send className="size-5" strokeWidth={2.5} />
+          </span>
+        </div>
+      </div>
+
+      <div className="mx-auto mt-4 inline-flex -rotate-1 items-center gap-2 border-2 border-dashed border-border/50 bg-white/80 px-3 py-1.5 font-[family-name:var(--font-patrick-hand)] text-base text-foreground/70">
+        <Lock className="size-4" /> end-to-end encrypted · local-first
+      </div>
+    </div>
+  );
 }
 
-interface TestimonialProps {
-  quote: string;
-  author: string;
-  role: string;
-}
-
-interface FaqItemProps {
-  question: string;
-  answer: string;
-}
-
-const RedirectToConversation = () => {
+function RedirectToConversations() {
   const router = useRouter();
   useEffect(() => {
     router.push("/conversations");
   }, [router]);
   return (
-    <div className="flex justify-center items-center h-64">
-      <Loading message="Redirecting..."/>
+    <div className="flex h-64 items-center justify-center">
+      <p className="flex items-center gap-2 font-[family-name:var(--font-kalam)] text-2xl font-bold">
+        <Pencil className="size-6" /> flipping to your chats…
+      </p>
     </div>
   );
-};
+}
 
-const FeatureCard = ({ icon: Icon, title, description, delay = 0 }: FeatureCardProps) => {
-  const [isVisible, setIsVisible] = useState(false);
-  const rotations = ["odd:-rotate-2", "even:rotate-2", "odd:rotate-1", "even:-rotate-1"];
-  const rot = rotations[Math.floor(Math.random() * rotations.length)];
-  
-  useEffect(() => {
-    const timer = setTimeout(() => setIsVisible(true), delay);
-    return () => clearTimeout(timer);
-  }, [delay]);
-
-  return (
-    <Card className={`group relative transition-all duration-300 bg-[#fdfbf7] border-[3px] border-border shadow-[6px_6px_0px_0px_#2d2d2d] transform ${rot} hover:-translate-y-2 hover:shadow-[8px_8px_0px_0px_#ff4d4d] ${
-      isVisible ? 'opacity-100' : 'opacity-0'
-    }`}
-    style={{ borderRadius: "var(--radius-wobbly)" }}>
-      <div className="absolute top-2 right-2 opacity-50"><PenTool size={16} /></div>
-      <CardHeader className="text-center pb-3">
-        <div className="mx-auto mb-4 p-3 border-2 border-dashed border-border rounded-full bg-muted w-fit group-hover:bg-accent group-hover:text-white transition-colors duration-300">
-          <Icon className="h-8 w-8 relative z-10 transition-transform duration-300 group-hover:scale-110" strokeWidth={2.5}/>
-        </div>
-        <CardTitle className="text-2xl font-bold font-[family-name:var(--font-kalam)]">{title}</CardTitle>
-      </CardHeader>
-      <CardContent className="text-center">
-        <CardDescription className="text-lg text-foreground/80 leading-relaxed font-[family-name:var(--font-patrick-hand)]">{description}</CardDescription>
-      </CardContent>
-    </Card>
-  );
-};
-
-const TestimonialCard = ({ quote, author, role }: TestimonialProps) => {
-  const isPostIt = Math.random() > 0.5;
-  const bgClass = isPostIt ? "bg-[#fdf8c1]" : "bg-muted";
-  
-  return (
-    <Card 
-      className={`${bgClass} border-[3px] border-border hover:shadow-[4px_4px_0px_0px_#2d5da1] transition-all overflow-hidden group transform hover:-translate-y-1 odd:rotate-1 even:-rotate-2`}
-      style={{ borderRadius: "var(--radius-wobbly)" }}
-    >
-      <CardContent className="p-6 relative">
-        <div className="absolute top-2 left-1/2 -translate-x-1/2 w-8 h-3 bg-red-400/20 rotate-[-5deg]"></div>
-        <p className="text-foreground text-xl mb-4 relative z-10 italic font-[family-name:var(--font-patrick-hand)]">"{quote}"</p>
-        <div className="flex items-center relative z-10 mt-4 border-t-2 border-dashed border-border/50 pt-4">
-          <div className="w-12 h-12 border-2 border-border flex items-center justify-center text-foreground font-bold bg-white" style={{ borderRadius: "var(--radius-wobbly-sm)" }}>
-            <span className="font-[family-name:var(--font-kalam)] text-xl">{author.charAt(0)}</span>
-          </div>
-          <div className="ml-4">
-            <p className="font-bold text-lg font-[family-name:var(--font-kalam)]">{author}</p>
-            <p className="text-foreground/70">{role}</p>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
-};
-
-const FaqItem = ({ question, answer }: FaqItemProps) => (
-  <Card className="bg-white border-[3px] border-border transition-all duration-300 hover:-translate-y-1 hover:shadow-[4px_4px_0px_0px_#ff4d4d]"
-        style={{ borderRadius: "var(--radius-wobbly-sm)" }}>
-    <CardHeader>
-      <CardTitle className="text-2xl flex items-start font-[family-name:var(--font-kalam)]">
-        <span className="text-accent mr-3 font-bold text-3xl leading-none">Q:</span> 
-        <span>{question}</span>
-      </CardTitle>
-    </CardHeader>
-    <CardContent>
-      <p className="text-lg bg-muted/50 p-4 border border-dashed border-border" style={{ borderRadius: "var(--radius-wobbly-sm)" }}>
-        {answer}
-      </p>
-    </CardContent>
-  </Card>
-);
+/* ————— page ————— */
 
 export default function Home() {
-  const [isLoaded, setIsLoaded] = useState(false);
-
-  useEffect(() => {
-    setIsLoaded(true);
-  }, []);
-
-  const features = useMemo(() => [
-    {
-      icon: Shield,
-      title: "End-to-End Encryption",
-      description: "Messages locked up tight! Only you and your friends hold the key.",
-      delay: 0
-    },
-    {
-      icon: Eye,
-      title: "Local-First Experience",
-      description: "Everything lives in your browser. Fast, private, and always yours.",
-      delay: 100
-    },
-    {
-      icon: Zap,
-      title: "Lightning Fast",
-      description: "No loading Spinners. Instant messaging like it was meant to be.",
-      delay: 200
-    },
-    {
-      icon: Users,
-      title: "Connect Globally",
-      description: "Chat securely across borders. Because friends don't let friends use unencrypted apps.",
-      delay: 300
-    },
-    {
-      icon: Lock,
-      title: "You Own Your Data",
-      description: "No sneaky tracking. We literally can't read your messages even if we wanted to.",
-      delay: 400
-    },
-    {
-      icon: Heart,
-      title: "Human Centric",
-      description: "Friendly, quirky design that doesn't feel like a corporate board room.",
-      delay: 500
-    }
-  ], []);
-  
-  const testimonials: TestimonialProps[] = useMemo(() => [
-    {
-      quote: "It's so fast I thought it was broken. It wasn't. It's just that fast.",
-      author: "Alex C.",
-      role: "Impatient texter"
-    },
-    {
-      quote: "Love the doodle aesthetic. And knowing my data is safe is pretty cool too.",
-      author: "Sarah J.",
-      role: "Design nerd"
-    },
-    {
-      quote: "Finally an app that doesn't try to read my thoughts to show me shoe ads.",
-      author: "Mike R.",
-      role: "Shoe enthusiast"
-    }
-  ], []);
-  
-  const faqs: FaqItemProps[] = useMemo(() => [
-    {
-      question: "How secure is this really?",
-      answer: "Super secure! We use server-side encryption with local keys. Simply put: the server just holds scrambled gibberish."
-    },
-    {
-      question: "Is it actually free?",
-      answer: "Yep! Privacy shouldn't cost you an arm and a leg. Use it for personal chats completely free."
-    },
-    {
-      question: "What does local-first mean?",
-      answer: "It means we store the chat history on your device first (in IndexedDB). This makes it blazingly fast."
-    },
-    {
-      question: "Can anyone read my messages?",
-      answer: "No. Since you control the encryption keys on your device, nobody else can decipher them. Not even us."
-    }
-  ], []);
-
   return (
-    <div className="min-h-screen bg-transparent overflow-hidden selection:bg-accent selection:text-white">
+    <div className="relative overflow-hidden bg-[#fdfbf7] selection:bg-[#ff4d4d] selection:text-white">
       <AuthLoading>
-        <div className="flex justify-center items-center h-screen">
-          <div className="text-3xl font-bold font-[family-name:var(--font-kalam)] animate-bounce-subtle flex flex-col items-center">
-            <PenTool className="animate-spin mb-4" size={48} />
-            Drawing up the app...
-          </div>
+        <div className="flex h-[60vh] items-center justify-center">
+          <p className="flex flex-col items-center gap-3 font-[family-name:var(--font-kalam)] text-2xl font-bold">
+            <JustchatMark size={56} />
+            sharpening pencils…
+          </p>
         </div>
       </AuthLoading>
 
       <Unauthenticated>
-        <div className={`transition-opacity duration-1000 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
-          
-          
-
-          {/* Hero Section */}
-          <div className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-12">
-            
-            <div className="w-full lg:w-1/2 text-center lg:text-left z-10">
-              <div className="inline-block mb-4 px-4 py-1 border-[3px] border-border bg-muted transform -rotate-2 font-bold text-lg" style={{ borderRadius: "var(--radius-wobbly-sm)" }}>
-                v2.0 (Hand-drawn edition) ✏️
-              </div>
-              <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tight mb-6 leading-[1.1] font-[family-name:var(--font-kalam)]">
-                Chat securely, <br />
-                <span className="text-accent underline decoration-wavy decoration-border underline-offset-4">without the polish.</span>
+        {/* HERO */}
+        <section className="relative">
+          <PaperDots />
+          <div className="relative mx-auto grid max-w-6xl gap-12 px-4 pb-16 pt-14 sm:px-6 md:pt-20 lg:grid-cols-2 lg:items-center lg:pb-24">
+            <div className="text-center lg:text-left">
+              <DoodleTag>✏️ v2.0 — the hand-drawn edition</DoodleTag>
+              <h1 className="mt-5 font-[family-name:var(--font-kalam)] text-5xl font-bold leading-[1.02] tracking-tight sm:text-6xl lg:text-7xl">
+                scribble less,
+                <br />
+                <span className="relative inline-block text-[#ff4d4d]">
+                  justchat
+                  <Squiggle className="absolute -bottom-2 left-0 w-full" />
+                </span>{" "}
+                more.
               </h1>
-              <p className="text-xl sm:text-2xl text-foreground font-[family-name:var(--font-patrick-hand)] mb-8 max-w-2xl mx-auto lg:mx-0 bg-white/50 inline-block p-2 border-2 border-dashed border-border/20 rounded-md">
-                Fast, private, and refreshingly human. We left out the straight lines and clinical designs so you can just focus on talking.
+              <p className="mx-auto mt-6 max-w-xl border-2 border-dashed border-border/30 bg-white/70 p-3 font-[family-name:var(--font-patrick-hand)] text-xl leading-relaxed text-foreground/80 lg:mx-0">
+                fast, private 1:1 chats with a hand-drawn heart. encrypted on
+                your device, stored locally first — so it feels like passing
+                notes, not filing tickets.
               </p>
-              <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
-                <Button size="lg" className="text-xl rotate-1 hover:-rotate-1 w-full sm:w-auto h-16 px-8">
-                  Get Started for Free <ArrowRight className="ml-2 h-6 w-6" />
-                </Button>
-                <Button size="lg" variant="outline" className="text-xl -rotate-1 hover:rotate-1 w-full sm:w-auto h-16">
-                  <Lock className="mr-2 h-5 w-5" /> Read the Manifesto
-                </Button>
+              <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:justify-center lg:justify-start">
+                <SignUpButton mode="modal">
+                  <button className="inline-flex h-14 items-center justify-center gap-2 border-[3px] border-border bg-[#ff4d4d] px-8 font-[family-name:var(--font-kalam)] text-xl font-bold text-white shadow-[5px_5px_0px_0px_#2d2d2d] hover:bg-[#2d2d2d]" style={{ borderRadius: "255px 15px 225px 15px / 15px 225px 15px 255px" }}>
+                    get started — it&apos;s free <ArrowRight className="size-5" strokeWidth={3} />
+                  </button>
+                </SignUpButton>
+                <a
+                  href="#security"
+                  className="inline-flex h-14 items-center justify-center gap-2 border-[3px] border-border bg-white px-8 font-[family-name:var(--font-patrick-hand)] text-xl shadow-[5px_5px_0px_0px_#2d2d2d] hover:bg-[#e5e0d8]"
+                  style={{ borderRadius: "20px 255px 15px 225px / 255px 15px 225px 15px" }}
+                >
+                  <Lock className="size-5" /> how we keep secrets
+                </a>
+              </div>
+              <div className="mt-7 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 lg:justify-start">
+                {[
+                  { icon: Shield, label: "end-to-end encrypted" },
+                  { icon: Zap, label: "local-first + instant" },
+                  { icon: Users, label: "pals by email" },
+                ].map((s) => (
+                  <span key={s.label} className="inline-flex items-center gap-1.5 font-[family-name:var(--font-patrick-hand)] text-lg text-foreground/70">
+                    <s.icon className="size-4" strokeWidth={2.5} /> {s.label}
+                  </span>
+                ))}
               </div>
             </div>
-
-            {/* Hero Image / Graphic */}
-            <div className="w-full lg:w-1/2 relative flex justify-center py-10 mt-10 lg:mt-0">
-              <div className="bg-white border-4 border-border shadow-[12px_12px_0px_0px_#2d2d2d] transform rotate-3 flex flex-col max-w-sm w-full"
-                   style={{ borderRadius: "var(--radius-wobbly)" }}>
-                <div className="border-b-4 border-border p-4 flex items-center justify-between bg-muted" style={{ borderRadius: "15px 15px 0 0" }}>
-                  <div className="flex gap-2">
-                    <div className="w-4 h-4 rounded-full border-2 border-border bg-destructive"></div>
-                    <div className="w-4 h-4 rounded-full border-2 border-border bg-[#eab308]"></div>
-                    <div className="w-4 h-4 rounded-full border-2 border-border bg-green-400"></div>
-                  </div>
-                  <span className="font-bold text-lg font-[family-name:var(--font-kalam)]">Just a chat...</span>
-                </div>
-                <div className="p-6 flex flex-col gap-4 h-64 overflow-hidden bg-[radial-gradient(#e5e0d8_1px,transparent_1px)] [background-size:16px_16px]">
-                  <div className="flex self-start max-w-[80%]">
-                    <div className="bg-white border-2 border-border p-3 shadow-[3px_3px_0_0_#2d2d2d] -rotate-1" style={{ borderRadius: "var(--radius-wobbly-sm)" }}>
-                      <p className="text-lg">Hey! Look at this wobbly chat box.</p>
-                    </div>
-                  </div>
-                  <div className="flex self-end max-w-[80%]">
-                    <div className="bg-[#fdf8c1] border-2 border-border p-3 shadow-[3px_3px_0_0_#2d2d2d] rotate-2" style={{ borderRadius: "var(--radius-wobbly-sm)" }}>
-                      <p className="text-lg">I know, right? It feels so organic!</p>
-                    </div>
-                  </div>
-                  <div className="flex self-start max-w-[80%] mt-2">
-                    <div className="bg-white border-2 border-border p-3 shadow-[3px_3px_0_0_#2d2d2d] -rotate-2" style={{ borderRadius: "var(--radius-wobbly-sm)" }}>
-                      <p className="text-lg">And secure? 🔒</p>
-                    </div>
-                  </div>
-                </div>
-                <div className="border-t-4 border-border p-4 bg-white flex gap-2" style={{ borderRadius: "0 0 15px 15px" }}>
-                   <div className="flex-1 border-2 border-border rounded-full px-4 py-2 flex items-center bg-muted/50 border-dashed">
-                      <span className="text-muted-foreground text-lg">Type a message...</span>
-                   </div>
-                   <div className="w-12 h-12 bg-accent rounded-full border-2 border-border flex items-center justify-center text-white shadow-[2px_2px_0_0_#2d2d2d]">
-                     <ArrowRight size={20} className="stroke-[3px]" />
-                   </div>
-                </div>
-              </div>
-            </div>
+            <ChatMock />
           </div>
+        </section>
 
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 pb-40">
-             <div className="text-center mb-16 relative">
-              <h2 className="text-4xl md:text-5xl font-bold mb-6 font-[family-name:var(--font-kalam)]">
-                 Why it's kind of awesome.
-              </h2>
-              <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-32 h-4 border-b-4 border-dashed border-accent rotate-[-2deg]"></div>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pt-8">
-              {features.map((feature, idx) => (
-                 <FeatureCard key={idx} {...feature} />
+        {/* FEATURES */}
+        <section id="features" className="relative mx-auto max-w-6xl scroll-mt-24 px-4 py-16 sm:px-6">
+          <DoodleHeading
+            tag="📌 why it's kinda awesome"
+            title={<>serious privacy, silly drawings.</>}
+            description="everything a grown-up chat app does — minus the surveillance capitalism and the boring rectangles."
+          />
+          <div className="mt-12 grid gap-7 sm:grid-cols-2 lg:grid-cols-3">
+            {FEATURES.map((f) => (
+              <article
+                key={f.title}
+                className={`relative border-[3px] border-border ${f.bg} p-6 shadow-[6px_6px_0px_0px_#2d2d2d] ${f.rotate}`}
+                style={{ borderRadius: "255px 15px 225px 15px / 15px 225px 15px 255px" }}
+              >
+                {f.tape && <TapeStrip />}
+                <span className="inline-flex size-13 items-center justify-center border-[3px] border-border bg-white p-2.5 shadow-[3px_3px_0_0_#2d2d2d]" style={{ borderRadius: "20px 255px 15px 225px / 255px 15px 225px 15px" }}>
+                  <f.icon className="size-6" strokeWidth={2.5} />
+                </span>
+                <h3 className="mt-4 font-[family-name:var(--font-kalam)] text-2xl font-bold">{f.title}</h3>
+                <p className="mt-1.5 font-[family-name:var(--font-patrick-hand)] text-lg leading-relaxed text-foreground/75">{f.body}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        {/* HOW */}
+        <section id="how" className="scroll-mt-24 border-y-[3px] border-dashed border-border bg-[#e5e0d8]/30">
+          <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
+            <DoodleHeading
+              tag="🗺️ how it works"
+              title={<>three scribbles to chatting.</>}
+              description="no manuals, no 40-minute onboarding videos. if you can doodle a smiley, you can use justchat."
+            />
+            <div className="relative mt-12 grid gap-7 md:grid-cols-3">
+              <svg viewBox="0 0 600 40" aria-hidden="true" className="absolute -top-6 left-[12%] hidden w-[76%] md:block">
+                <path d="M10 28 Q 150 4, 300 24 T 590 18" fill="none" stroke="#2d2d2d" strokeWidth="3" strokeDasharray="9 8" strokeLinecap="round" />
+              </svg>
+              {STEPS.map((s, i) => (
+                <article
+                  key={s.n}
+                  className={`relative border-[3px] border-border bg-white p-6 text-center shadow-[5px_5px_0px_0px_#2d2d2d] ${i === 1 ? "md:-translate-y-3 rotate-1" : i === 0 ? "-rotate-1" : "-rotate-2 md:translate-y-2"}`}
+                  style={{ borderRadius: "20px 255px 15px 225px / 255px 15px 225px 15px" }}
+                >
+                  <span className="absolute -top-5 left-1/2 flex size-10 -translate-x-1/2 -rotate-6 items-center justify-center border-[3px] border-border bg-[#ffeb3b] font-[family-name:var(--font-kalam)] text-xl font-bold shadow-[2px_2px_0_0_#2d2d2d]" style={{ borderRadius: "60% 40% 55% 45% / 50% 55% 45% 50%" }}>
+                    {s.n}
+                  </span>
+                  <span className="mt-2 inline-block text-4xl">{s.emoji}</span>
+                  <h3 className="mt-2 font-[family-name:var(--font-kalam)] text-2xl font-bold">{s.title}</h3>
+                  <p className="mt-1.5 font-[family-name:var(--font-patrick-hand)] text-lg text-foreground/75">{s.body}</p>
+                </article>
               ))}
             </div>
+            <div className="mt-10 text-center">
+              <SignUpButton mode="modal">
+                <button className="inline-flex h-13 items-center gap-2 border-[3px] border-border bg-[#2d2d2d] px-8 py-3 font-[family-name:var(--font-kalam)] text-xl font-bold text-white shadow-[5px_5px_0px_0px_#ff4d4d] hover:bg-[#ff4d4d]" style={{ borderRadius: "255px 15px 225px 15px / 15px 225px 15px 255px" }}>
+                try step 1 right now <ArrowRight className="size-5" strokeWidth={3} />
+                </button>
+              </SignUpButton>
+            </div>
           </div>
-          
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 bg-muted/20 border-y-4 border-border border-dashed my-8">
-            <div className="text-center mb-16">
-              <h2 className="text-4xl md:text-5xl font-bold mb-4 font-[family-name:var(--font-kalam)]">
-                What they're scribbling
+        </section>
+
+        {/* SECURITY */}
+        <section id="security" className="mx-auto max-w-6xl scroll-mt-24 px-4 py-16 sm:px-6">
+          <div className="grid items-stretch gap-8 lg:grid-cols-2">
+            <div className="flex flex-col justify-center">
+              <DoodleTag color="red">🔒 security, minus the jargon</DoodleTag>
+              <h2 className="mt-4 font-[family-name:var(--font-kalam)] text-4xl font-bold leading-tight md:text-5xl">
+                we literally <span className="underline decoration-wavy decoration-[#ff4d4d] underline-offset-4">can&apos;t</span> read your chats.
               </h2>
-              <p className="text-xl text-foreground/80 max-w-2xl mx-auto">
-                Don't just take our word for it. Look at these post-its.
+              <p className="mt-4 font-[family-name:var(--font-patrick-hand)] text-xl text-foreground/75">
+                keys are born on your device and locked with your seed phrase.
+                justchat servers hold scrambled blobs — great for syncing,
+                useless for snooping.
               </p>
+              <ul className="mt-6 space-y-3">
+                {[
+                  "encrypted before it leaves your keyboard",
+                  "seed phrase recovery — no passwords on our servers",
+                  "local-first: yours even when offline",
+                ].map((t) => (
+                  <li key={t} className="flex items-start gap-3 border-2 border-dashed border-border/50 bg-white px-4 py-2.5 font-[family-name:var(--font-patrick-hand)] text-lg" style={{ borderRadius: "20px 255px 15px 225px / 255px 15px 225px 15px" }}>
+                    <span className="mt-0.5 flex size-6 shrink-0 items-center justify-center border-2 border-border bg-green-400"><Check className="size-4" strokeWidth={3.5} /></span>
+                    {t}
+                  </li>
+                ))}
+              </ul>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {testimonials.map((testimonial, index) => (
-                <TestimonialCard key={index} {...testimonial} />
-              ))}
-            </div>
-          </div>
-
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-            <div className="text-center mb-16">
-              <h2 className="text-4xl md:text-5xl font-bold mb-4 font-[family-name:var(--font-kalam)]">
-                Frequently Scribbled Questions
-              </h2>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
-              {faqs.map((faq, index) => (
-                <FaqItem key={index} {...faq} />
-              ))}
-            </div>
-          </div>
-
-          <div className="relative z-20 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-            <div className="bg-accent rounded-3xl p-8 md:p-12 shadow-[12px_12px_0px_0px_#2d2d2d] border-[4px] border-border text-center relative overflow-hidden transform -rotate-1" style={{ borderRadius: "var(--radius-wobbly)" }}>
-              <div className="relative z-10">
-                <h2 className="text-3xl md:text-5xl font-bold mb-4 text-white font-[family-name:var(--font-kalam)]">
-                  Ready to Ditch the Polish?
-                </h2>
-                <p className="text-xl md:text-2xl mb-8 max-w-2xl mx-auto text-white/90 font-[family-name:var(--font-patrick-hand)]">
-                  Join JustChatting today and experience the perfect balance of quirky design, lightning speed, and serious security.
-                </p>
-                <Button size="lg" variant="outline" className="bg-white text-foreground hover:bg-muted text-2xl font-bold shadow-[6px_6px_0px_0px_#2d2d2d] py-8 px-12 rotate-2 hover:rotate-3">
-                  Start Chatting Now
-                </Button>
+            <div className="relative rotate-1 border-[3px] border-border bg-[#2d2d2d] p-6 text-white shadow-[8px_8px_0px_0px_#ff4d4d] sm:p-8" style={{ borderRadius: "255px 15px 225px 15px / 15px 225px 15px 255px" }}>
+              <TapeStrip />
+              <p className="font-[family-name:var(--font-patrick-hand)] text-lg text-white/60">your seed doodle looks like…</p>
+              <p className="mt-2 border-2 border-dashed border-white/30 bg-white/5 p-4 font-mono text-base leading-relaxed text-[#ffeb3b]">
+                pencil · comet · teacup · giraffe · louder · blanket · rocket ·
+                marble · noodle · lantern · pickle · sunset
+              </p>
+              <div className="mt-4 flex items-center gap-2 font-[family-name:var(--font-patrick-hand)] text-lg text-white/80">
+                <MessageCircle className="size-5" /> keep it offline. keep it secret. keep chatting.
+              </div>
+              <div className="mt-5 flex flex-wrap gap-2">
+                {["AES-GCM", "ECDH", "IndexedDB", "realtime sync"].map((chip) => (
+                  <span key={chip} className="border-2 border-white/40 px-3 py-1 font-[family-name:var(--font-patrick-hand)] text-base" style={{ borderRadius: "255px 15px 225px 15px / 15px 225px 15px 255px" }}>
+                    {chip}
+                  </span>
+                ))}
               </div>
             </div>
           </div>
+        </section>
 
-        </div>
+        {/* FAQ */}
+        <section id="faq" className="mx-auto max-w-4xl scroll-mt-24 px-4 py-16 sm:px-6">
+          <DoodleHeading
+            tag="❓ frequently scribbled questions"
+            title={<>asked, answered, doodled.</>}
+          />
+          <div className="mt-10 grid gap-5 sm:grid-cols-2">
+            {FAQS.map((f, i) => (
+              <article key={f.q} className={`border-[3px] border-border bg-white p-5 shadow-[4px_4px_0px_0px_#2d2d2d] ${i % 2 ? "rotate-1" : "-rotate-1"}`} style={{ borderRadius: "20px 255px 15px 225px / 255px 15px 225px 15px" }}>
+                <h3 className="flex items-start gap-2 font-[family-name:var(--font-kalam)] text-xl font-bold leading-snug">
+                  <span className="text-[#ff4d4d]">Q:</span> {f.q}
+                </h3>
+                <p className="mt-2 border-t-2 border-dashed border-border/30 pt-2 font-[family-name:var(--font-patrick-hand)] text-lg text-foreground/75">{f.a}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        {/* CTA */}
+        <section className="mx-auto max-w-5xl px-4 pb-20 sm:px-6">
+          <div className="relative -rotate-1 border-4 border-border bg-[#ff4d4d] p-8 text-center text-white shadow-[10px_10px_0px_0px_#2d2d2d] sm:p-12" style={{ borderRadius: "255px 20px 225px 20px / 20px 225px 20px 255px" }}>
+            <div className="absolute -top-7 left-1/2 -translate-x-1/2 rotate-3 border-[3px] border-border bg-white px-4 py-1 font-[family-name:var(--font-patrick-hand)] font-bold text-foreground shadow-[3px_3px_0_0_#2d2d2d]" style={{ borderRadius: "20px 255px 15px 225px / 255px 15px 225px 15px" }}>
+              ✏️ no credit card, no nonsense
+            </div>
+            <JustchatMark size={64} className="mx-auto mt-2 bg-white p-1" />
+            <h2 className="mx-auto mt-3 max-w-xl font-[family-name:var(--font-kalam)] text-4xl font-bold leading-tight md:text-5xl">
+              ready to ditch the boring chat apps?
+            </h2>
+            <p className="mx-auto mt-3 max-w-xl font-[family-name:var(--font-patrick-hand)] text-xl text-white/90">
+              grab a pencil, bring a pal, and justchat. your first doodle is 30
+              seconds away.
+            </p>
+            <div className="mt-7 flex flex-col items-center justify-center gap-3 sm:flex-row">
+              <SignUpButton mode="modal">
+                <button className="inline-flex h-14 items-center gap-2 border-[3px] border-border bg-white px-10 font-[family-name:var(--font-kalam)] text-2xl font-bold text-foreground shadow-[5px_5px_0px_0px_#2d2d2d] hover:bg-[#ffeb3b]" style={{ borderRadius: "255px 15px 225px 15px / 15px 225px 15px 255px" }}>
+                  start chatting now
+                </button>
+              </SignUpButton>
+            </div>
+            <p className="mt-4 font-[family-name:var(--font-patrick-hand)] text-lg text-white/80">
+              free forever for pals · your keys, your chats
+            </p>
+          </div>
+        </section>
       </Unauthenticated>
 
       <Authenticated>
-        <RedirectToConversation />
+        <RedirectToConversations />
       </Authenticated>
     </div>
   );

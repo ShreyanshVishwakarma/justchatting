@@ -5,6 +5,11 @@ interface JustChattingLogoProps {
   className?: string;
 }
 
+/**
+ * justchat logo — the hand-drawn chat bubble with a doodle face.
+ * This is the same artwork as /favicon.ico and /icons/icon.svg.
+ * Do not restyle: keep bubble, face + blush identical for branding.
+ */
 export const JustChattingLogo: React.FC<JustChattingLogoProps> = ({
   size = 24,
   className = "",
@@ -17,6 +22,7 @@ export const JustChattingLogo: React.FC<JustChattingLogoProps> = ({
       className={className}
       xmlns="http://www.w3.org/2000/svg"
       aria-hidden="true"
+      role="img"
     >
       {/* Big hand-drawn chat bubble */}
       <path
@@ -27,7 +33,6 @@ export const JustChattingLogo: React.FC<JustChattingLogoProps> = ({
         strokeLinejoin="round"
         strokeLinecap="round"
       />
-
       {/* Doodle face */}
       <g fill="#2d2d2d">
         <circle cx="214" cy="236" r="16" />
@@ -40,7 +45,6 @@ export const JustChattingLogo: React.FC<JustChattingLogoProps> = ({
         strokeWidth="18"
         strokeLinecap="round"
       />
-
       {/* Blush (correction red) */}
       <g fill="#ff4d4d" opacity="0.85">
         <path d="M 196 258 q 10 8 0 18 q -10 -10 0 -18 z" />

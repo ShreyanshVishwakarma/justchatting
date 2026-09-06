@@ -87,8 +87,39 @@
     @apply border-border outline-ring/50;
   }
 
+  html {
+    scroll-behavior: smooth;
+  }
+
   body {
     @apply bg-background text-foreground;
+    font-family: var(--font-patrick-hand), "Patrick Hand", cursive;
+    background-image: radial-gradient(#e5e0d8 1.1px, transparent 1.1px);
+    background-size: 22px 22px;
+    background-attachment: fixed;
+  }
+
+  h1, h2, h3, h4, .font-display {
+    font-family: var(--font-kalam), "Kalam", cursive;
+  }
+
+  ::selection {
+    background: #ff4d4d;
+    color: #fff;
+  }
+
+  /* doodle scrollbar */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #fdfbf7;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #2d2d2d;
+    border: 2px solid #fdfbf7;
+    border-radius: 8px;
   }
 }
 

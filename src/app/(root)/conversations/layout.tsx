@@ -1,11 +1,12 @@
 "use client";
 
 import React from "react";
-import { cn } from "@/lib/utils";
+import { Authenticated, Unauthenticated } from "convex/react";
 import { useConversation } from "@/hooks/useConversation";
 import ConversationList from "@/components/shared/conversationList";
 import { RedirectToHome } from "@/components/shared/RedirectTohome";
-import { Authenticated, Unauthenticated } from "convex/react";
+import { cn } from "@/lib/utils";
+
 interface ConversationsLayoutProps {
   children: React.ReactNode;
 }
@@ -18,38 +19,35 @@ const ConversationsLayout = ({ children }: ConversationsLayoutProps) => {
         <RedirectToHome />
       </Unauthenticated>
       <Authenticated>
-        <div className="h-full flex gap-4 p-0 md:p-4 select-none">
-          {/* Conversation list sidebar */}
-          <div
+        <div className="mx-auto flex h-full max-w-6xl gap-4 p-3 md:p-5">
+          {/* chat list doodle sheet */}
+          <section
+            aria-label="chat list"
             className={cn(
-              "w-full md:w-80 lg:w-96 flex flex-col md:flex-none border-[3px] border-border bg-white shadow-[6px_6px_0px_0px_#2d2d2d] overflow-hidden -rotate-1 relative z-10",
-              {
-                "hidden md:flex": isActive,
-              },
+              "relative flex min-h-0 w-full flex-col border-[3px] border-border bg-white shadow-[6px_6px_0px_0px_#2d2d2d]",
+              "md:w-[340px] md:shrink-0 lg:w-[380px] -rotate-[0.4deg]",
+              isActive && "hidden md:flex"
             )}
-            style={{ borderRadius: "var(--radius-wobbly)" }}
+            style={{ borderRadius: "255px 16px 225px 16px / 16px 225px 16px 255px" }}
           >
-            <div className="flex-grow overflow-y-auto overflow-hidden p-2">
+            <span aria-hidden="true" className="absolute left-1/2 top-0 z-10 h-5 w-16 -translate-x-1/2 -translate-y-1/2 rotate-[-5deg] border-x-2 border-dashed border-[#2d2d2d]/20 bg-[#2d2d2d]/10" />
+            <div className="min-h-0 flex-1 overflow-hidden p-2">
               <ConversationList />
             </div>
-          </div>
+          </section>
 
-          {/* Main content area */}
-          <div
+          {/* active chat doodle sheet */}
+          <section
+            aria-label="active chat"
             className={cn(
-              "hidden md:flex flex-1 h-full overflow-hidden rotate-1 mt-2",
-              {
-                "flex w-full": isActive,
-              },
+              "relative min-h-0 flex-1 flex-col overflow-hidden border-[3px] border-border bg-white shadow-[6px_6px_0px_0px_#2d2d2d] rotate-[0.4deg]",
+              isActive ? "flex" : "hidden md:flex"
             )}
+            style={{ borderRadius: "20px 255px 16px 225px / 255px 16px 225px 16px" }}
           >
-            <div
-              className="w-full h-full overflow-hidden border-[3px] border-border bg-white shadow-[6px_6px_0px_0px_#2d2d2d] select-none"
-              style={{ borderRadius: "var(--radius-wobbly)" }}
-            >
-              {children}
-            </div>
-          </div>
+            <span aria-hidden="true" className="absolute left-1/2 top-0 z-10 h-5 w-16 -translate-x-1/2 -translate-y-1/2 rotate-[4deg] border-x-2 border-dashed border-[#2d2d2d]/20 bg-[#ff4d4d]/20" />
+            <div className="flex min-h-0 flex-1 flex-col">{children}</div>
+          </section>
         </div>
       </Authenticated>
     </>

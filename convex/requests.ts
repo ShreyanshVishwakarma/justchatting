@@ -6,7 +6,7 @@ export const getRequests = query({
     handler: async (ctx) =>{
         const currentUser = await ctx.auth?.getUserIdentity();
         if (!currentUser) {
-            throw new Error("User not authenticated");
+            return [];
         }
 
         const userId = await ctx.db.query("users")
@@ -14,7 +14,7 @@ export const getRequests = query({
             .unique();
 
         if (!userId) {
-            throw new Error("Current user not found");
+            return [];
         }
 
         const requests = await ctx.db.query("requests")
@@ -43,7 +43,7 @@ export const getRequestWithSenderDetails = query({
     handler: async (ctx, args) => {
         const currentUser = await ctx.auth?.getUserIdentity();
         if (!currentUser) {
-            throw new Error("User not authenticated");
+            return [];
         }
 
         const userId = await ctx.db.query("users")
@@ -51,7 +51,7 @@ export const getRequestWithSenderDetails = query({
             .unique();
 
         if (!userId) {
-            throw new Error("Current user not found");
+            return [];
         }
 
         const requests = await ctx.db.query("requests")

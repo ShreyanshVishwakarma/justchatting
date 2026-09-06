@@ -7,7 +7,7 @@ export const get = query({
   handler: async (ctx) => {
     const currentUser = await ctx.auth.getUserIdentity();
     if (!currentUser) {
-      throw new Error("User not authenticated");
+      return [];
     }
     const currentUserid = await ctx.db
       .query("users")
@@ -17,7 +17,7 @@ export const get = query({
       .unique();
 
     if (!currentUserid) {
-      throw new Error("Current user not found");
+      return [];
     }
 
     const friends1 = await ctx.db
